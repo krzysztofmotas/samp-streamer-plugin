@@ -651,44 +651,40 @@ void ChunkStreamer::flushPendingMaterials(Player &player)
 
 void ChunkStreamer::streamMaterials(Player &player, bool automatic)
 {
-	if (!automatic || ++player.materialChunkTickCount >= player.materialChunkTickRate)
+	std::size_t chunkCount = 0;
+	while (!player.pendingMaterials.empty())
 	{
-		std::size_t chunkCount = 0;
-		while (!player.pendingMaterials.empty())
+		int streamerId = player.pendingMaterials.front().first;
+		int internalId = player.pendingMaterials.front().second;
+		std::unordered_map<int, Item::SharedObject>::iterator o = core->getData()->objects.find(streamerId);
+		if (o == core->getData()->objects.end())
 		{
-			int streamerId = player.pendingMaterials.front().first;
-			int internalId = player.pendingMaterials.front().second;
-			std::unordered_map<int, Item::SharedObject>::iterator o = core->getData()->objects.find(streamerId);
-			if (o == core->getData()->objects.end())
-			{
-				player.pendingMaterials.pop_front();
-				continue;
-			}
-			std::unordered_map<int, int>::iterator i = player.internalObjects.find(streamerId);
-			if (i == player.internalObjects.end() || i->second != internalId)
-			{
-				player.pendingMaterials.pop_front();
-				continue;
-			}
-			std::size_t slotCount = o->second->materials.size();
-			if (automatic && chunkCount > 0 && chunkCount + slotCount > materialChunkSize)
-			{
-				break;
-			}
 			player.pendingMaterials.pop_front();
-			for (std::unordered_map<int, Item::Object::Material>::iterator m = o->second->materials.begin(); m != o->second->materials.end(); ++m)
-			{
-				if (m->second.main)
-				{
-					sampgdk::SetPlayerObjectMaterial(player.playerId, internalId, m->first, m->second.main->modelId, m->second.main->txdFileName.c_str(), m->second.main->textureName.c_str(), m->second.main->materialColor);
-				}
-				else if (m->second.text)
-				{
-					sampgdk::SetPlayerObjectMaterialText(player.playerId, internalId, m->second.text->materialText.c_str(), m->first, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
-				}
-			}
-			chunkCount += slotCount;
+			continue;
 		}
-		player.materialChunkTickCount = 0;
+		std::unordered_map<int, int>::iterator i = player.internalObjects.find(streamerId);
+		if (i == player.internalObjects.end() || i->second != internalId)
+		{
+			player.pendingMaterials.pop_front();
+			continue;
+		}
+		std::size_t slotCount = o->second->materials.size();
+		if (automatic && chunkCount > 0 && chunkCount + slotCount > materialChunkSize)
+		{
+			break;
+		}
+		player.pendingMaterials.pop_front();
+		for (std::unordered_map<int, Item::Object::Material>::iterator m = o->second->materials.begin(); m != o->second->materials.end(); ++m)
+		{
+			if (m->second.main)
+			{
+				sampgdk::SetPlayerObjectMaterial(player.playerId, internalId, m->first, m->second.main->modelId, m->second.main->txdFileName.c_str(), m->second.main->textureName.c_str(), m->second.main->materialColor);
+			}
+			else if (m->second.text)
+			{
+				sampgdk::SetPlayerObjectMaterialText(player.playerId, internalId, m->second.text->materialText.c_str(), m->first, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
+			}
+		}
+		chunkCount += slotCount;
 	}
 }

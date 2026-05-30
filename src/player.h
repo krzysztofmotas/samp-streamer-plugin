@@ -28,8 +28,6 @@ struct Player
 	int activeRaceCheckpoint;
 	std::size_t chunkTickCount[STREAMER_MAX_TYPES];
 	std::size_t chunkTickRate[STREAMER_MAX_TYPES];
-	std::size_t materialChunkTickCount;
-	std::size_t materialChunkTickRate;
 	std::size_t currentVisibleObjects;
 	std::size_t currentVisibleTextLabels;
 	int delayedCheckpoint;
