@@ -192,6 +192,8 @@ native Streamer_GetChunkTickRate(type, playerid = -1);
 native Streamer_SetChunkTickRate(type, rate, playerid = -1);
 native Streamer_GetChunkSize(type);
 native Streamer_SetChunkSize(type, size);
+native Streamer_GetMaterialChunkSize();
+native Streamer_SetMaterialChunkSize(size);
 native Streamer_GetMaxItems(type);
 native Streamer_SetMaxItems(type, items);
 native Streamer_GetVisibleItems(type, playerid = -1);

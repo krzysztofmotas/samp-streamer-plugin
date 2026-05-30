@@ -44,14 +44,33 @@ public:
 	void discoverObjects(Player &player, const std::vector<SharedCell> &cells);
 	void discoverTextLabels(Player &player, const std::vector<SharedCell> &cells);
 
+	void flushPendingMaterials(Player &player);
+
 	std::size_t getChunkSize(int type);
 	bool setChunkSize(int type, std::size_t value);
+
+	inline std::size_t getMaterialChunkSize()
+	{
+		return materialChunkSize;
+	}
+
+	inline bool setMaterialChunkSize(std::size_t value)
+	{
+		if (value > 0)
+		{
+			materialChunkSize = value;
+			return true;
+		}
+		return false;
+	}
 private:
 	void streamMapIcons(Player &player, bool automatic);
 	void streamObjects(Player &player, bool automatic);
 	void streamTextLabels(Player &player, bool automatic);
+	void streamMaterials(Player &player, bool automatic);
 
 	std::size_t chunkSize[STREAMER_MAX_TYPES];
+	std::size_t materialChunkSize;
 	bool chunkStreamingEnabled;
 };
 

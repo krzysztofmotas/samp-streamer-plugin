@@ -39,6 +39,8 @@ namespace Natives
 	cell AMX_NATIVE_CALL Streamer_SetChunkTickRate(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL Streamer_GetChunkSize(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL Streamer_SetChunkSize(AMX *amx, cell *params);
+	cell AMX_NATIVE_CALL Streamer_GetMaterialChunkSize(AMX *amx, cell *params);
+	cell AMX_NATIVE_CALL Streamer_SetMaterialChunkSize(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL Streamer_GetMaxItems(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL Streamer_SetMaxItems(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL Streamer_GetVisibleItems(AMX *amx, cell *params);

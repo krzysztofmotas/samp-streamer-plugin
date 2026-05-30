@@ -29,6 +29,8 @@ Player::Player(int id)
 	chunkTickRate[STREAMER_TYPE_OBJECT] = 1;
 	chunkTickRate[STREAMER_TYPE_MAP_ICON] = 1;
 	chunkTickRate[STREAMER_TYPE_3D_TEXT_LABEL] = 1;
+	materialChunkTickCount = 0;
+	materialChunkTickRate = 1;
 	currentVisibleObjects = core->getData()->getGlobalMaxVisibleItems(STREAMER_TYPE_OBJECT);
 	currentVisibleTextLabels = core->getData()->getGlobalMaxVisibleItems(STREAMER_TYPE_3D_TEXT_LABEL);
 	delayedCheckpoint = 0;

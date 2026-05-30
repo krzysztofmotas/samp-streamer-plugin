@@ -57,7 +57,15 @@ cell AMX_NATIVE_CALL Natives::Streamer_SetPlayerTickRate(AMX *amx, cell *params)
 cell AMX_NATIVE_CALL Natives::Streamer_ToggleChunkStream(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(1);
-	core->getChunkStreamer()->setChunkStreamingEnabled(static_cast<int>(params[1]) != 0);
+	bool enabled = static_cast<int>(params[1]) != 0;
+	if (!enabled && core->getChunkStreamer()->getChunkStreamingEnabled())
+	{
+		for (std::unordered_map<int, Player>::iterator p = core->getData()->players.begin(); p != core->getData()->players.end(); ++p)
+		{
+			core->getChunkStreamer()->flushPendingMaterials(p->second);
+		}
+	}
+	core->getChunkStreamer()->setChunkStreamingEnabled(enabled);
 	return 1;
 }
 
@@ -88,6 +96,17 @@ cell AMX_NATIVE_CALL Natives::Streamer_SetChunkSize(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(2);
 	return static_cast<cell>(core->getChunkStreamer()->setChunkSize(static_cast<int>(params[1]), static_cast<std::size_t>(params[2])) != 0);
+}
+
+cell AMX_NATIVE_CALL Natives::Streamer_GetMaterialChunkSize(AMX *amx, cell *params)
+{
+	return static_cast<cell>(core->getChunkStreamer()->getMaterialChunkSize());
+}
+
+cell AMX_NATIVE_CALL Natives::Streamer_SetMaterialChunkSize(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(1);
+	return static_cast<cell>(core->getChunkStreamer()->setMaterialChunkSize(static_cast<std::size_t>(params[1])) != 0);
 }
 
 cell AMX_NATIVE_CALL Natives::Streamer_GetMaxItems(AMX *amx, cell *params)
