@@ -44,6 +44,10 @@ std::size_t ChunkStreamer::getChunkSize(int type)
 		{
 			return chunkSize[STREAMER_TYPE_3D_TEXT_LABEL];
 		}
+		case STREAMER_TYPE_MATERIAL:
+		{
+			return materialChunkSize;
+		}
 	}
 	return 0;
 }
@@ -67,6 +71,11 @@ bool ChunkStreamer::setChunkSize(int type, std::size_t value)
 			case STREAMER_TYPE_3D_TEXT_LABEL:
 			{
 				chunkSize[STREAMER_TYPE_3D_TEXT_LABEL] = value;
+				return true;
+			}
+			case STREAMER_TYPE_MATERIAL:
+			{
+				materialChunkSize = value;
 				return true;
 			}
 		}

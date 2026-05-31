@@ -48,21 +48,6 @@ public:
 
 	std::size_t getChunkSize(int type);
 	bool setChunkSize(int type, std::size_t value);
-
-	inline std::size_t getMaterialChunkSize()
-	{
-		return materialChunkSize;
-	}
-
-	inline bool setMaterialChunkSize(std::size_t value)
-	{
-		if (value > 0)
-		{
-			materialChunkSize = value;
-			return true;
-		}
-		return false;
-	}
 private:
 	void streamMapIcons(Player &player, bool automatic);
 	void streamObjects(Player &player, bool automatic);
