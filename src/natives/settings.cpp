@@ -95,6 +95,10 @@ cell AMX_NATIVE_CALL Natives::Streamer_GetChunkSize(AMX *amx, cell *params)
 cell AMX_NATIVE_CALL Natives::Streamer_SetChunkSize(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(2);
+	if (static_cast<int>(params[2]) <= 0)
+	{
+		return 0;
+	}
 	return static_cast<cell>(core->getChunkStreamer()->setChunkSize(static_cast<int>(params[1]), static_cast<std::size_t>(params[2])) != 0);
 }
 
@@ -106,6 +110,10 @@ cell AMX_NATIVE_CALL Natives::Streamer_GetMaterialChunkSize(AMX *amx, cell *para
 cell AMX_NATIVE_CALL Natives::Streamer_SetMaterialChunkSize(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(1);
+	if (static_cast<int>(params[1]) <= 0)
+	{
+		return 0;
+	}
 	return static_cast<cell>(core->getChunkStreamer()->setMaterialChunkSize(static_cast<std::size_t>(params[1])) != 0);
 }
 

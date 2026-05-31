@@ -59,7 +59,7 @@ void Streamer::startAutomaticUpdate()
 			bool updatedActiveItems = false;
 			for (std::unordered_map<int, Player>::iterator p = core->getData()->players.begin(); p != core->getData()->players.end(); ++p)
 			{
-				if (core->getChunkStreamer()->getChunkStreamingEnabled() && (p->second.processingChunks.any() || !p->second.pendingMaterials.empty()))
+				if (core->getChunkStreamer()->getChunkStreamingEnabled() && p->second.processingChunks.any())
 				{
 					if (!updatedActiveItems)
 					{
@@ -87,6 +87,10 @@ void Streamer::startAutomaticUpdate()
 							startManualUpdate(p->second, p->second.delayedUpdateType);
 						}
 						p->second.tickCount = 0;
+					}
+					if (core->getChunkStreamer()->getChunkStreamingEnabled() && !p->second.pendingMaterials.empty())
+					{
+						core->getChunkStreamer()->performPlayerChunkUpdate(p->second, true);
 					}
 				}
 			}
