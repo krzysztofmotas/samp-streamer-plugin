@@ -61,10 +61,12 @@ void Streamer::startAutomaticUpdate()
 			{
 				if (core->getChunkStreamer()->getChunkStreamingEnabled() && p->second.processingChunks.any())
 				{
-					core->getChunkStreamer()->performPlayerChunkUpdate(p->second, true);
-				}
-				else if (core->getChunkStreamer()->getChunkStreamingEnabled() && !p->second.pendingMaterials.empty())
-				{
+					if (!updatedActiveItems)
+					{
+						processActiveItems();
+						updatedActiveItems = true;
+					}
+					++p->second.tickCount;
 					core->getChunkStreamer()->performPlayerChunkUpdate(p->second, true);
 				}
 				else
@@ -85,6 +87,10 @@ void Streamer::startAutomaticUpdate()
 							startManualUpdate(p->second, p->second.delayedUpdateType);
 						}
 						p->second.tickCount = 0;
+					}
+					if (core->getChunkStreamer()->getChunkStreamingEnabled() && !p->second.pendingMaterials.empty())
+					{
+						core->getChunkStreamer()->performPlayerChunkUpdate(p->second, true);
 					}
 				}
 			}
@@ -173,7 +179,6 @@ void Streamer::startManualUpdate(Player &player, int type)
 				{
 					player.discoveredObjects.clear();
 					player.existingObjects.clear();
-					player.pendingMaterials.clear();
 					player.processingChunks.reset(STREAMER_TYPE_OBJECT);
 					break;
 				}
@@ -204,7 +209,6 @@ void Streamer::startManualUpdate(Player &player, int type)
 		player.existingMapIcons.clear();
 		player.existingObjects.clear();
 		player.existingTextLabels.clear();
-		player.pendingMaterials.clear();
 		player.processingChunks.reset();
 	}
 	processActiveItems();
