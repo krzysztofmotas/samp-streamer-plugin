@@ -24,7 +24,7 @@ ChunkStreamer::ChunkStreamer()
 	chunkSize[STREAMER_TYPE_OBJECT] = 100;
 	chunkSize[STREAMER_TYPE_MAP_ICON] = 100;
 	chunkSize[STREAMER_TYPE_3D_TEXT_LABEL] = 100;
-	materialChunkSize = 10;
+	materialChunkSize = 200;
 	chunkStreamingEnabled = false;
 }
 
@@ -165,13 +165,14 @@ void ChunkStreamer::streamMapIcons(Player &player, bool automatic)
 {
 	if (!automatic || ++player.chunkTickCount[STREAMER_TYPE_MAP_ICON] >= player.chunkTickRate[STREAMER_TYPE_MAP_ICON])
 	{
+		std::size_t effectiveChunkSize = automatic ? throttledSize(chunkSize[STREAMER_TYPE_MAP_ICON], player.networkPacketLoss) : chunkSize[STREAMER_TYPE_MAP_ICON];
 		std::size_t chunkCount = 0;
 		if (!player.removedMapIcons.empty())
 		{
 			std::unordered_set<int>::iterator r = player.removedMapIcons.begin();
 			while (r != player.removedMapIcons.end())
 			{
-				if (automatic && ++chunkCount > chunkSize[STREAMER_TYPE_MAP_ICON])
+				if (automatic && ++chunkCount > effectiveChunkSize)
 				{
 					break;
 				}
@@ -198,7 +199,7 @@ void ChunkStreamer::streamMapIcons(Player &player, bool automatic)
 			Item::Bimap<Item::SharedMapIcon>::Type::left_iterator d = player.discoveredMapIcons.left.begin();
 			while (d != player.discoveredMapIcons.left.end())
 			{
-				if (automatic && ++chunkCount > chunkSize[STREAMER_TYPE_MAP_ICON])
+				if (automatic && ++chunkCount > effectiveChunkSize)
 				{
 					break;
 				}
@@ -323,13 +324,14 @@ void ChunkStreamer::streamObjects(Player &player, bool automatic)
 {
 	if (!automatic || ++player.chunkTickCount[STREAMER_TYPE_OBJECT] >= player.chunkTickRate[STREAMER_TYPE_OBJECT])
 	{
+		std::size_t effectiveChunkSize = automatic ? throttledSize(chunkSize[STREAMER_TYPE_OBJECT], player.networkPacketLoss) : chunkSize[STREAMER_TYPE_OBJECT];
 		std::size_t chunkCount = 0;
 		if (!player.removedObjects.empty())
 		{
 			std::unordered_set<int>::iterator r = player.removedObjects.begin();
 			while (r != player.removedObjects.end())
 			{
-				if (automatic && ++chunkCount > chunkSize[STREAMER_TYPE_OBJECT])
+				if (automatic && ++chunkCount > effectiveChunkSize)
 				{
 					break;
 				}
@@ -356,7 +358,7 @@ void ChunkStreamer::streamObjects(Player &player, bool automatic)
 			Item::Bimap<Item::SharedObject>::Type::left_iterator d = player.discoveredObjects.left.begin();
 			while (d != player.discoveredObjects.left.end())
 			{
-				if (automatic && ++chunkCount > chunkSize[STREAMER_TYPE_OBJECT])
+				if (automatic && ++chunkCount > effectiveChunkSize)
 				{
 					break;
 				}
@@ -530,13 +532,14 @@ void ChunkStreamer::streamTextLabels(Player &player, bool automatic)
 {
 	if (!automatic || ++player.chunkTickCount[STREAMER_TYPE_3D_TEXT_LABEL] >= player.chunkTickRate[STREAMER_TYPE_3D_TEXT_LABEL])
 	{
+		std::size_t effectiveChunkSize = automatic ? throttledSize(chunkSize[STREAMER_TYPE_3D_TEXT_LABEL], player.networkPacketLoss) : chunkSize[STREAMER_TYPE_3D_TEXT_LABEL];
 		std::size_t chunkCount = 0;
 		if (!player.removedTextLabels.empty())
 		{
 			std::unordered_set<int>::iterator r = player.removedTextLabels.begin();
 			while (r != player.removedTextLabels.end())
 			{
-				if (automatic && ++chunkCount > chunkSize[STREAMER_TYPE_3D_TEXT_LABEL])
+				if (automatic && ++chunkCount > effectiveChunkSize)
 				{
 					break;
 				}
@@ -563,7 +566,7 @@ void ChunkStreamer::streamTextLabels(Player &player, bool automatic)
 			Item::Bimap<Item::SharedTextLabel>::Type::left_iterator d = player.discoveredTextLabels.left.begin();
 			while (d != player.discoveredTextLabels.left.end())
 			{
-				if (automatic && ++chunkCount > chunkSize[STREAMER_TYPE_3D_TEXT_LABEL])
+				if (automatic && ++chunkCount > effectiveChunkSize)
 				{
 					break;
 				}
@@ -636,13 +639,9 @@ void ChunkStreamer::streamTextLabels(Player &player, bool automatic)
 	}
 }
 
-void ChunkStreamer::flushPendingMaterials(Player &player)
-{
-	streamMaterials(player, false);
-}
-
 void ChunkStreamer::streamMaterials(Player &player, bool automatic)
 {
+	std::size_t effectiveChunkSize = automatic ? throttledSize(materialChunkSize, player.networkPacketLoss) : materialChunkSize;
 	std::size_t chunkCount = 0;
 	while (!player.pendingMaterials.empty())
 	{
@@ -661,7 +660,9 @@ void ChunkStreamer::streamMaterials(Player &player, bool automatic)
 			continue;
 		}
 		std::size_t slotCount = o->second->materials.size();
-		if (automatic && chunkCount > 0 && chunkCount + slotCount > materialChunkSize)
+		// chunkCount > 0: first object always bypasses the limit to prevent
+		// starvation when a single object has more slots than effectiveChunkSize
+		if (automatic && chunkCount > 0 && chunkCount + slotCount > effectiveChunkSize)
 		{
 			break;
 		}

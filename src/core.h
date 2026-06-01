@@ -46,12 +46,24 @@ public:
 	{
 		return streamer.get();
 	}
+
+	inline IPlayerPool *getPlayers()
+	{
+		return players;
+	}
+
+	inline void setPlayers(IPlayerPool *p)
+	{
+		players = p;
+	}
 private:
 	std::unique_ptr<Data> data;
 	std::unique_ptr<Grid> grid;
 
 	std::unique_ptr<ChunkStreamer> chunkStreamer;
 	std::unique_ptr<Streamer> streamer;
+
+	IPlayerPool *players = nullptr;
 };
 
 extern std::unique_ptr<Core> core;

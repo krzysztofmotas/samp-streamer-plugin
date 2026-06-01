@@ -73,6 +73,9 @@ struct Player
 	std::unordered_map<int, int> internalTextLabels;
 
 	std::deque<std::pair<int, int>> pendingMaterials;
+	float networkPacketLoss = 0.0f;
+	unsigned networkPrevBytesSent = 0;
+	unsigned networkPrevBytesResent = 0;
 
 	std::unordered_set<int> removedMapIcons;
 	std::unordered_set<int> removedObjects;

@@ -62,8 +62,15 @@ public:
 		return false;
 	}
 
-	void flushPendingMaterials(Player &player);
 private:
+	inline std::size_t throttledSize(std::size_t base, float packetLoss) const
+	{
+		auto clamp1 = [](std::size_t v) { return v ? v : std::size_t(1); };
+		if (packetLoss >= 10.0f) return clamp1(base / 4);
+		if (packetLoss >= 5.0f)  return clamp1(base / 2);
+		if (packetLoss >= 2.0f)  return clamp1(base * 3 / 4);
+		return base;
+	}
 	void streamMapIcons(Player &player, bool automatic);
 	void streamObjects(Player &player, bool automatic);
 	void streamTextLabels(Player &player, bool automatic);

@@ -273,6 +273,7 @@ class OmpStreamerComponent final : public IComponent, public CoreEventHandler, p
 		core.reset(new Core);
 		omp_core = c;
 		players = &c->getPlayers();
+		core->setPlayers(players);
 		c->printLn("\n\n ***Streamer Plugin v%s by Incognito loaded ***", PLUGIN_VERSION);
 	}
 

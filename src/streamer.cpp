@@ -226,6 +226,24 @@ void Streamer::performPlayerUpdate(Player &player, bool automatic)
 	bool update = true;
 	if (automatic)
 	{
+		if (core->getChunkStreamer()->getChunkStreamingEnabled() && core->getPlayers())
+		{
+			IPlayer *omplayer = core->getPlayers()->get(player.playerId);
+			if (omplayer)
+			{
+				const PeerNetworkData &netData = omplayer->getNetworkData();
+				if (netData.network)
+				{
+					NetworkStats ns = netData.network->getStatistics(omplayer);
+					unsigned deltaSent = ns.totalBytesSent - player.networkPrevBytesSent;
+					unsigned deltaResent = ns.messagesTotalBytesResent - player.networkPrevBytesResent;
+					float instantLoss = deltaSent > 0 ? 100.0f * deltaResent / deltaSent : 0.0f;
+					player.networkPacketLoss = 0.25f * instantLoss + 0.75f * player.networkPacketLoss;
+					player.networkPrevBytesSent = ns.totalBytesSent;
+					player.networkPrevBytesResent = ns.messagesTotalBytesResent;
+				}
+			}
+		}
 		player.interiorId = ompgdk::GetPlayerInterior(player.playerId);
 		player.worldId = ompgdk::GetPlayerVirtualWorld(player.playerId);
 		if (!player.updateUsingCameraPosition)
