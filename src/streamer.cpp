@@ -63,6 +63,10 @@ void Streamer::startAutomaticUpdate()
 				{
 					core->getChunkStreamer()->performPlayerChunkUpdate(p->second, true);
 				}
+				else if (core->getChunkStreamer()->getChunkStreamingEnabled() && !p->second.pendingMaterials.empty())
+				{
+					core->getChunkStreamer()->performPlayerChunkUpdate(p->second, true);
+				}
 				else
 				{
 					if (++p->second.tickCount >= p->second.tickRate)
@@ -169,6 +173,7 @@ void Streamer::startManualUpdate(Player &player, int type)
 				{
 					player.discoveredObjects.clear();
 					player.existingObjects.clear();
+					player.pendingMaterials.clear();
 					player.processingChunks.reset(STREAMER_TYPE_OBJECT);
 					break;
 				}
@@ -199,6 +204,7 @@ void Streamer::startManualUpdate(Player &player, int type)
 		player.existingMapIcons.clear();
 		player.existingObjects.clear();
 		player.existingTextLabels.clear();
+		player.pendingMaterials.clear();
 		player.processingChunks.reset();
 	}
 	processActiveItems();

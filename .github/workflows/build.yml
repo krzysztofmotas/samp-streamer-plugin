@@ -14,7 +14,7 @@ on:
 
 jobs:
   build-windows-release:
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
     - uses: actions/checkout@v4
       with:
@@ -24,17 +24,17 @@ jobs:
       id: vars
       shell: bash
       run: |
-        echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+        echo "branch=${GITHUB_REF#refs/heads/}" >> "$GITHUB_OUTPUT"
+        echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
 
     - name: Setup Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
 
     - name: Install CMake
       uses: lukka/get-cmake@v3.31.0
 
     - name: Generate build files
-      run: mkdir build && cd build && cmake .. -G "Visual Studio 16 2019" -A Win32
+      run: mkdir build && cd build && cmake .. -G "Visual Studio 17 2022" -A Win32
 
     - name: Build
       run: |
@@ -53,7 +53,7 @@ jobs:
         name: streamer-win-release-${{ steps.current-time.outputs.formattedTime }}-${{ steps.vars.outputs.sha_short }}
         path: build/bin/Release
   build-windows-debug:
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
     - uses: actions/checkout@v4
       with:
@@ -63,17 +63,17 @@ jobs:
       id: vars
       shell: bash
       run: |
-        echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+        echo "branch=${GITHUB_REF#refs/heads/}" >> "$GITHUB_OUTPUT"
+        echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
 
     - name: Setup Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
 
     - name: Install CMake
       uses: lukka/get-cmake@v3.31.0
 
     - name: Generate build files
-      run: mkdir build && cd build && cmake .. -G "Visual Studio 16 2019" -A Win32
+      run: mkdir build && cd build && cmake .. -G "Visual Studio 17 2022" -A Win32
 
     - name: Build
       run: |
@@ -108,8 +108,8 @@ jobs:
       id: vars
       shell: bash
       run: |
-        echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+        echo "branch=${GITHUB_REF#refs/heads/}" >> "$GITHUB_OUTPUT"
+        echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
 
     - name: Build
       run: |

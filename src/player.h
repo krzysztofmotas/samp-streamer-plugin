@@ -20,6 +20,8 @@
 #include "cell.h"
 #include "identifier.h"
 
+#include <deque>
+
 struct Player
 {
 	Player(int id);
@@ -69,6 +71,8 @@ struct Player
 	std::unordered_map<int, int> internalMapIcons;
 	std::unordered_map<int, int> internalObjects;
 	std::unordered_map<int, int> internalTextLabels;
+
+	std::deque<std::pair<int, int>> pendingMaterials;
 
 	std::unordered_set<int> removedMapIcons;
 	std::unordered_set<int> removedObjects;

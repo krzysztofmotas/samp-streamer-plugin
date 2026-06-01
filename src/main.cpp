@@ -38,6 +38,8 @@ AMX_NATIVE_INFO natives[] =
 	{ "Streamer_SetChunkTickRate", Natives::Streamer_SetChunkTickRate },
 	{ "Streamer_GetChunkSize", Natives::Streamer_GetChunkSize },
 	{ "Streamer_SetChunkSize", Natives::Streamer_SetChunkSize },
+	{ "Streamer_GetMaterialChunkSize", Natives::Streamer_GetMaterialChunkSize },
+	{ "Streamer_SetMaterialChunkSize", Natives::Streamer_SetMaterialChunkSize },
 	{ "Streamer_GetMaxItems", Natives::Streamer_GetMaxItems },
 	{ "Streamer_SetMaxItems", Natives::Streamer_SetMaxItems },
 	{ "Streamer_GetVisibleItems", Natives::Streamer_GetVisibleItems },

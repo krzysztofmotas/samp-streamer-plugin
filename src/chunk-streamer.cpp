@@ -24,6 +24,7 @@ ChunkStreamer::ChunkStreamer()
 	chunkSize[STREAMER_TYPE_OBJECT] = 100;
 	chunkSize[STREAMER_TYPE_MAP_ICON] = 100;
 	chunkSize[STREAMER_TYPE_3D_TEXT_LABEL] = 100;
+	materialChunkSize = 10;
 	chunkStreamingEnabled = false;
 }
 
@@ -104,6 +105,10 @@ void ChunkStreamer::performPlayerChunkUpdate(Player &player, bool automatic)
 				break;
 			}
 		}
+	}
+	if (!player.pendingMaterials.empty())
+	{
+		streamMaterials(player, automatic);
 	}
 }
 
@@ -435,16 +440,9 @@ void ChunkStreamer::streamObjects(Player &player, bool automatic)
 				{
 					ompgdk::MovePlayerObject(player.playerId, internalId, std::get<0>(std::get<1>(d->second)->move->position)[0], std::get<0>(std::get<1>(d->second)->move->position)[1], std::get<0>(std::get<1>(d->second)->move->position)[2], std::get<1>(d->second)->move->speed, std::get<0>(std::get<1>(d->second)->move->rotation)[0], std::get<0>(std::get<1>(d->second)->move->rotation)[1], std::get<0>(std::get<1>(d->second)->move->rotation)[2]);
 				}
-				for (std::unordered_map<int, Item::Object::Material>::iterator m = std::get<1>(d->second)->materials.begin(); m != std::get<1>(d->second)->materials.end(); ++m)
+				if (!std::get<1>(d->second)->materials.empty())
 				{
-					if (m->second.main)
-					{
-						ompgdk::SetPlayerObjectMaterial(player.playerId, internalId, m->first, m->second.main->modelId, m->second.main->txdFileName.c_str(), m->second.main->textureName.c_str(), m->second.main->materialColor);
-					}
-					else if (m->second.text)
-					{
-						ompgdk::SetPlayerObjectMaterialText(player.playerId, internalId, m->second.text->materialText.c_str(), m->first, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
-					}
+					player.pendingMaterials.push_back(std::make_pair(std::get<0>(d->second), internalId));
 				}
 				if (std::get<1>(d->second)->noCameraCollision)
 				{
@@ -635,5 +633,50 @@ void ChunkStreamer::streamTextLabels(Player &player, bool automatic)
 	{
 		player.existingTextLabels.clear();
 		player.processingChunks.reset(STREAMER_TYPE_3D_TEXT_LABEL);
+	}
+}
+
+void ChunkStreamer::flushPendingMaterials(Player &player)
+{
+	streamMaterials(player, false);
+}
+
+void ChunkStreamer::streamMaterials(Player &player, bool automatic)
+{
+	std::size_t chunkCount = 0;
+	while (!player.pendingMaterials.empty())
+	{
+		int streamerId = player.pendingMaterials.front().first;
+		int internalId = player.pendingMaterials.front().second;
+		std::unordered_map<int, Item::SharedObject>::iterator o = core->getData()->objects.find(streamerId);
+		if (o == core->getData()->objects.end())
+		{
+			player.pendingMaterials.pop_front();
+			continue;
+		}
+		std::unordered_map<int, int>::iterator i = player.internalObjects.find(streamerId);
+		if (i == player.internalObjects.end() || i->second != internalId)
+		{
+			player.pendingMaterials.pop_front();
+			continue;
+		}
+		std::size_t slotCount = o->second->materials.size();
+		if (automatic && chunkCount > 0 && chunkCount + slotCount > materialChunkSize)
+		{
+			break;
+		}
+		player.pendingMaterials.pop_front();
+		for (std::unordered_map<int, Item::Object::Material>::iterator m = o->second->materials.begin(); m != o->second->materials.end(); ++m)
+		{
+			if (m->second.main)
+			{
+				ompgdk::SetPlayerObjectMaterial(player.playerId, internalId, m->first, m->second.main->modelId, m->second.main->txdFileName.c_str(), m->second.main->textureName.c_str(), m->second.main->materialColor);
+			}
+			else if (m->second.text)
+			{
+				ompgdk::SetPlayerObjectMaterialText(player.playerId, internalId, m->second.text->materialText.c_str(), m->first, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
+			}
+		}
+		chunkCount += slotCount;
 	}
 }
