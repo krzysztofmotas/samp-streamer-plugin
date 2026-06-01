@@ -241,11 +241,11 @@ void Streamer::performPlayerUpdate(Player &player, bool automatic)
 					player.networkPacketLoss = 0.25f * instantLoss + 0.75f * player.networkPacketLoss;
 					player.networkPrevBytesSent = ns.totalBytesSent;
 					player.networkPrevBytesResent = ns.messagesTotalBytesResent;
-					int tier = player.networkPacketLoss >= 20.0f ? 3 : player.networkPacketLoss >= 10.0f ? 2 : player.networkPacketLoss >= 5.0f ? 1 : 0;
+					int tier = player.networkPacketLoss >= ChunkStreamer::THROTTLE_TIER3 ? 3 : player.networkPacketLoss >= ChunkStreamer::THROTTLE_TIER2 ? 2 : player.networkPacketLoss >= ChunkStreamer::THROTTLE_TIER1 ? 1 : 0;
 					if (tier != player.networkThrottleTier)
 					{
 						player.networkThrottleTier = tier;
-						static const char *tierNames[] = { "none", "3/4 (5%+)", "1/2 (10%+)", "1/4 (20%+)" };
+						static const char *tierNames[] = { "none", "3/4 (2%+)", "1/2 (5%+)", "1/4 (10%+)" };
 						if (core->getOmpCore())
 							core->getOmpCore()->printLn("[Streamer] Player %d throttle: %s (loss=%.1f%%)", player.playerId, tierNames[tier], player.networkPacketLoss);
 					}

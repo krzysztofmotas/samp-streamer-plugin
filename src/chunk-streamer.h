@@ -62,13 +62,17 @@ public:
 		return false;
 	}
 
+	static constexpr float THROTTLE_TIER1 = 2.0f;
+	static constexpr float THROTTLE_TIER2 = 5.0f;
+	static constexpr float THROTTLE_TIER3 = 10.0f;
+
 private:
 	inline std::size_t throttledSize(std::size_t base, float packetLoss) const
 	{
 		auto clamp1 = [](std::size_t v) { return v ? v : std::size_t(1); };
-		if (packetLoss >= 10.0f) return clamp1(base / 4);
-		if (packetLoss >= 5.0f)  return clamp1(base / 2);
-		if (packetLoss >= 2.0f)  return clamp1(base * 3 / 4);
+		if (packetLoss >= THROTTLE_TIER3) return clamp1(base / 4);
+		if (packetLoss >= THROTTLE_TIER2) return clamp1(base / 2);
+		if (packetLoss >= THROTTLE_TIER1) return clamp1(base * 3 / 4);
 		return base;
 	}
 	void streamMapIcons(Player &player, bool automatic);
