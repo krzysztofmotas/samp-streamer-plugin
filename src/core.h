@@ -56,6 +56,16 @@ public:
 	{
 		players = p;
 	}
+
+	inline ICore *getOmpCore()
+	{
+		return ompCore;
+	}
+
+	inline void setOmpCore(ICore *c)
+	{
+		ompCore = c;
+	}
 private:
 	std::unique_ptr<Data> data;
 	std::unique_ptr<Grid> grid;
@@ -64,6 +74,7 @@ private:
 	std::unique_ptr<Streamer> streamer;
 
 	IPlayerPool *players = nullptr;
+	ICore *ompCore = nullptr;
 };
 
 extern std::unique_ptr<Core> core;

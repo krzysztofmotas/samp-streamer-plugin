@@ -76,6 +76,7 @@ struct Player
 	float networkPacketLoss = 0.0f;
 	unsigned networkPrevBytesSent = 0;
 	unsigned networkPrevBytesResent = 0;
+	int networkThrottleTier = 0;
 
 	std::unordered_set<int> removedMapIcons;
 	std::unordered_set<int> removedObjects;
