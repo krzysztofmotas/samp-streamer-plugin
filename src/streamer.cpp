@@ -1583,10 +1583,10 @@ void Streamer::processAttachedTextLabels()
 {
 	for (std::unordered_set<Item::SharedTextLabel>::iterator t = attachedTextLabels.begin(); t != attachedTextLabels.end(); ++t)
 	{
-		bool adjust = false;
-		Eigen::Vector3f position = (*t)->attach->position;
 		if ((*t)->attach)
 		{
+			bool adjust = false;
+			Eigen::Vector3f position = (*t)->attach->position;
 			if ((*t)->attach->player != INVALID_PLAYER_ID)
 			{
 				adjust = ompgdk::GetPlayerPos((*t)->attach->player, &(*t)->attach->position[0], &(*t)->attach->position[1], &(*t)->attach->position[2]);
