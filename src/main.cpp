@@ -72,6 +72,7 @@ AMX_NATIVE_INFO natives[] =
 	{ "Streamer_GetLastUpdateTime", Natives::Streamer_GetLastUpdateTime },
 	{ "Streamer_Update", Natives::Streamer_Update },
 	{ "Streamer_UpdateEx", Natives::Streamer_UpdateEx },
+	{ "Streamer_QueueObjectDiscovery", Natives::Streamer_QueueObjectDiscovery },
 	// Data Manipulation
 	{ "Streamer_GetFloatData", Natives::Streamer_GetFloatData },
 	{ "Streamer_SetFloatData", Natives::Streamer_SetFloatData },

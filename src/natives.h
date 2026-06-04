@@ -73,6 +73,7 @@ namespace Natives
 	cell AMX_NATIVE_CALL Streamer_GetLastUpdateTime(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL Streamer_Update(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL Streamer_UpdateEx(AMX *amx, cell *params);
+	cell AMX_NATIVE_CALL Streamer_QueueObjectDiscovery(AMX *amx, cell *params);
 	// Data Manipulation
 	cell AMX_NATIVE_CALL Streamer_GetFloatData(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL Streamer_SetFloatData(AMX *amx, cell *params);

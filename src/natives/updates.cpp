@@ -18,6 +18,7 @@
 
 #include "../natives.h"
 #include "../core.h"
+#include "../utility.h"
 
 cell AMX_NATIVE_CALL Natives::Streamer_ProcessActiveItems(AMX *amx, cell *params)
 {
@@ -158,6 +159,50 @@ cell AMX_NATIVE_CALL Natives::Streamer_UpdateEx(AMX *amx, cell *params)
 			p->second.delayedUpdateFreeze = static_cast<int>(params[9]) != 0;
 		}
 		core->getStreamer()->startManualUpdate(p->second, static_cast<int>(params[7]));
+		return 1;
+	}
+	return 0;
+}
+
+cell AMX_NATIVE_CALL Natives::Streamer_QueueObjectDiscovery(AMX *amx, cell *params)
+{
+	// Fills discoveredObjects for the given position without streaming anything immediately.
+	// Subsequent automatic ticks pick up processingChunks and stream in chunks (automatic=true, chunkSize respected).
+	// Use with Streamer_ToggleItemUpdate(playerid, STREAMER_TYPE_OBJECT, false) to prevent the next
+	// automatic tick from overwriting discoveredObjects with the player's real position.
+	CHECK_PARAMS(6);
+	std::unordered_map<int, Player>::iterator p = core->getData()->players.find(static_cast<int>(params[1]));
+	if (p != core->getData()->players.end())
+	{
+		if (!core->getChunkStreamer()->getChunkStreamingEnabled())
+		{
+			Utility::logError("Streamer_QueueObjectDiscovery: Chunk streaming is not enabled.");
+			return 0;
+		}
+		if (p->second.enabledItems[STREAMER_TYPE_OBJECT])
+		{
+			Utility::logError("Streamer_QueueObjectDiscovery: Object item update is enabled -- call Streamer_ToggleItemUpdate(playerid, STREAMER_TYPE_OBJECT, false) first or the next automatic tick will overwrite the discovery queue.");
+		}
+		Eigen::Vector3f savedPosition = p->second.position;
+		int savedWorldId = p->second.worldId;
+		int savedInteriorId = p->second.interiorId;
+		p->second.position = Eigen::Vector3f(amx_ctof(params[2]), amx_ctof(params[3]), amx_ctof(params[4]));
+		p->second.worldId = static_cast<int>(params[5]) >= 0 ? static_cast<int>(params[5]) : ompgdk::GetPlayerVirtualWorld(p->first);
+		p->second.interiorId = static_cast<int>(params[6]) >= 0 ? static_cast<int>(params[6]) : ompgdk::GetPlayerInterior(p->first);
+		p->second.discoveredObjects.clear();
+		p->second.existingObjects.clear();
+		p->second.removedObjects.clear();
+		p->second.processingChunks.reset(STREAMER_TYPE_OBJECT);
+		core->getStreamer()->processActiveItems();
+		std::vector<SharedCell> cells;
+		core->getGrid()->findAllCellsForPlayer(p->second, cells);
+		if (!cells.empty())
+		{
+			core->getChunkStreamer()->discoverObjects(p->second, cells);
+		}
+		p->second.position = savedPosition;
+		p->second.worldId = savedWorldId;
+		p->second.interiorId = savedInteriorId;
 		return 1;
 	}
 	return 0;
