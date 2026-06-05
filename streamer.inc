@@ -676,3 +676,27 @@ public OnPlayerWeaponShot(playerid, WEAPON:weaponid, BULLET_HIT_TYPE:hittype, hi
 #if defined Streamer_OnPlayerWeaponShot
 	forward Streamer_OnPlayerWeaponShot(playerid, WEAPON:weaponid, BULLET_HIT_TYPE:hittype, hitid, Float:fX, Float:fY, Float:fZ);
 #endif
+
+
+stock Streamer_EditDynamicObject(playerid, STREAMER_TAG_OBJECT:objectid)
+{
+	if (!EditDynamicObject(playerid, objectid))
+		SetTimerEx("_Streamer_RetryEditDynamicObject", Streamer_GetPlayerTickRate(playerid) + 20, false, "ii", playerid, _:objectid);
+
+	return 1;
+}
+
+#if defined _ALS_EditDynamicObject
+	#undef EditDynamicObject
+#else
+	#define _ALS_EditDynamicObject
+#endif
+
+#define EditDynamicObject Streamer_EditDynamicObject
+
+forward _Streamer_RetryEditDynamicObject(playerid, STREAMER_TAG_OBJECT:objectid);
+public _Streamer_RetryEditDynamicObject(playerid, STREAMER_TAG_OBJECT:objectid)
+{
+	if (IsPlayerConnected(playerid) && IsValidDynamicObject(objectid))
+		EditDynamicObject(playerid, objectid);
+}
