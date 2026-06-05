@@ -459,3 +459,220 @@ forward OnDynamicActorStreamOut(STREAMER_TAG_ACTOR:actorid, forplayerid);
 forward Streamer_OnItemStreamIn(type, STREAMER_ALL_TAGS:id, forplayerid);
 forward Streamer_OnItemStreamOut(type, STREAMER_ALL_TAGS:id, forplayerid);
 forward Streamer_OnPluginError(const error[]);
+
+// Hooks - suppress SA-MP legacy callbacks for dynamic items (open.mp fires both)
+
+public OnPlayerObjectMoved(playerid, objectid)
+{
+	if (Streamer_GetItemStreamerID(playerid, STREAMER_TYPE_OBJECT, objectid) != INVALID_STREAMER_ID)
+		return 1;
+
+	new ret = 1;
+
+	#if defined Streamer_OnPlayerObjectMoved
+		ret = Streamer_OnPlayerObjectMoved(playerid, objectid);
+	#endif
+
+	return ret;
+}
+
+#if defined _ALS_OnPlayerObjectMoved
+	#undef OnPlayerObjectMoved
+#else
+	#define _ALS_OnPlayerObjectMoved
+#endif
+
+#define OnPlayerObjectMoved Streamer_OnPlayerObjectMoved
+
+#if defined Streamer_OnPlayerObjectMoved
+	forward Streamer_OnPlayerObjectMoved(playerid, objectid);
+#endif
+
+
+public OnPlayerEditObject(playerid, playerobject, objectid, EDIT_RESPONSE:response, Float:fX, Float:fY, Float:fZ, Float:fRotX, Float:fRotY, Float:fRotZ)
+{
+	if (playerobject && Streamer_GetItemStreamerID(playerid, STREAMER_TYPE_OBJECT, objectid) != INVALID_STREAMER_ID)
+		return 1;
+
+	new ret = 1;
+
+	#if defined Streamer_OnPlayerEditObject
+		ret = Streamer_OnPlayerEditObject(playerid, playerobject, objectid, response, fX, fY, fZ, fRotX, fRotY, fRotZ);
+	#endif
+
+	return ret;
+}
+
+#if defined _ALS_OnPlayerEditObject
+	#undef OnPlayerEditObject
+#else
+	#define _ALS_OnPlayerEditObject
+#endif
+
+#define OnPlayerEditObject Streamer_OnPlayerEditObject
+
+#if defined Streamer_OnPlayerEditObject
+	forward Streamer_OnPlayerEditObject(playerid, playerobject, objectid, EDIT_RESPONSE:response, Float:fX, Float:fY, Float:fZ, Float:fRotX, Float:fRotY, Float:fRotZ);
+#endif
+
+
+public OnPlayerSelectObject(playerid, SELECT_OBJECT:type, objectid, modelid, Float:fX, Float:fY, Float:fZ)
+{
+	if (type == SELECT_OBJECT_PLAYER_OBJECT && Streamer_GetItemStreamerID(playerid, STREAMER_TYPE_OBJECT, objectid) != INVALID_STREAMER_ID)
+		return 1;
+
+	new ret = 1;
+
+	#if defined Streamer_OnPlayerSelectObject
+		ret = Streamer_OnPlayerSelectObject(playerid, type, objectid, modelid, fX, fY, fZ);
+	#endif
+
+	return ret;
+}
+
+#if defined _ALS_OnPlayerSelectObject
+	#undef OnPlayerSelectObject
+#else
+	#define _ALS_OnPlayerSelectObject
+#endif
+
+#define OnPlayerSelectObject Streamer_OnPlayerSelectObject
+
+#if defined Streamer_OnPlayerSelectObject
+	forward Streamer_OnPlayerSelectObject(playerid, SELECT_OBJECT:type, objectid, modelid, Float:fX, Float:fY, Float:fZ);
+#endif
+
+
+public OnPlayerPickUpPickup(playerid, pickupid)
+{
+	if (Streamer_GetItemStreamerID(playerid, STREAMER_TYPE_PICKUP, pickupid) != INVALID_STREAMER_ID)
+		return 1;
+
+	new ret = 1;
+
+	#if defined Streamer_OnPlayerPickUpPickup
+		ret = Streamer_OnPlayerPickUpPickup(playerid, pickupid);
+	#endif
+
+	return ret;
+}
+
+#if defined _ALS_OnPlayerPickUpPickup
+	#undef OnPlayerPickUpPickup
+#else
+	#define _ALS_OnPlayerPickUpPickup
+#endif
+
+#define OnPlayerPickUpPickup Streamer_OnPlayerPickUpPickup
+
+#if defined Streamer_OnPlayerPickUpPickup
+	forward Streamer_OnPlayerPickUpPickup(playerid, pickupid);
+#endif
+
+
+public OnPlayerGiveDamageActor(playerid, damaged_actorid, Float:amount, WEAPON:weaponid, bodypart)
+{
+	if (Streamer_GetItemStreamerID(playerid, STREAMER_TYPE_ACTOR, damaged_actorid) != INVALID_STREAMER_ID)
+		return 0;
+
+	new ret = 0;
+
+	#if defined Streamer_OnPlayerGiveDamageActor
+		ret = Streamer_OnPlayerGiveDamageActor(playerid, damaged_actorid, amount, weaponid, bodypart);
+	#endif
+
+	return ret;
+}
+
+#if defined _ALS_OnPlayerGiveDamageActor
+	#undef OnPlayerGiveDamageActor
+#else
+	#define _ALS_OnPlayerGiveDamageActor
+#endif
+
+#define OnPlayerGiveDamageActor Streamer_OnPlayerGiveDamageActor
+
+#if defined Streamer_OnPlayerGiveDamageActor
+	forward Streamer_OnPlayerGiveDamageActor(playerid, damaged_actorid, Float:amount, WEAPON:weaponid, bodypart);
+#endif
+
+
+public OnActorStreamIn(actorid, forplayerid)
+{
+	if (Streamer_GetItemStreamerID(forplayerid, STREAMER_TYPE_ACTOR, actorid) != INVALID_STREAMER_ID)
+		return 1;
+
+	new ret = 1;
+
+	#if defined Streamer_OnActorStreamIn
+		ret = Streamer_OnActorStreamIn(actorid, forplayerid);
+	#endif
+
+	return ret;
+}
+
+#if defined _ALS_OnActorStreamIn
+	#undef OnActorStreamIn
+#else
+	#define _ALS_OnActorStreamIn
+#endif
+
+#define OnActorStreamIn Streamer_OnActorStreamIn
+
+#if defined Streamer_OnActorStreamIn
+	forward Streamer_OnActorStreamIn(actorid, forplayerid);
+#endif
+
+
+public OnActorStreamOut(actorid, forplayerid)
+{
+	if (Streamer_GetItemStreamerID(forplayerid, STREAMER_TYPE_ACTOR, actorid) != INVALID_STREAMER_ID)
+		return 1;
+
+	new ret = 1;
+
+	#if defined Streamer_OnActorStreamOut
+		ret = Streamer_OnActorStreamOut(actorid, forplayerid);
+	#endif
+
+	return ret;
+}
+
+#if defined _ALS_OnActorStreamOut
+	#undef OnActorStreamOut
+#else
+	#define _ALS_OnActorStreamOut
+#endif
+
+#define OnActorStreamOut Streamer_OnActorStreamOut
+
+#if defined Streamer_OnActorStreamOut
+	forward Streamer_OnActorStreamOut(actorid, forplayerid);
+#endif
+
+
+public OnPlayerWeaponShot(playerid, WEAPON:weaponid, BULLET_HIT_TYPE:hittype, hitid, Float:fX, Float:fY, Float:fZ)
+{
+	if (hittype == BULLET_HIT_TYPE_PLAYER_OBJECT && Streamer_GetItemStreamerID(playerid, STREAMER_TYPE_OBJECT, hitid) != INVALID_STREAMER_ID)
+		return 1;
+
+	new ret = 1;
+
+	#if defined Streamer_OnPlayerWeaponShot
+		ret = Streamer_OnPlayerWeaponShot(playerid, weaponid, hittype, hitid, fX, fY, fZ);
+	#endif
+
+	return ret;
+}
+
+#if defined _ALS_OnPlayerWeaponShot
+	#undef OnPlayerWeaponShot
+#else
+	#define _ALS_OnPlayerWeaponShot
+#endif
+
+#define OnPlayerWeaponShot Streamer_OnPlayerWeaponShot
+
+#if defined Streamer_OnPlayerWeaponShot
+	forward Streamer_OnPlayerWeaponShot(playerid, WEAPON:weaponid, BULLET_HIT_TYPE:hittype, hitid, Float:fX, Float:fY, Float:fZ);
+#endif
