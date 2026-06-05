@@ -245,9 +245,11 @@ void Streamer::performPlayerUpdate(Player &player, bool automatic)
 					if (tier != player.networkThrottleTier)
 					{
 						player.networkThrottleTier = tier;
-						static const char *tierNames[] = { "none", "3/4 (2%+)", "1/2 (5%+)", "1/4 (10%+)" };
-						if (core->getOmpCore())
+						if (core->getChunkStreamer()->getThrottleDebugEnabled() && core->getOmpCore())
+						{
+							static const char *tierNames[] = { "none", "3/4 (2%+)", "1/2 (5%+)", "1/4 (10%+)" };
 							core->getOmpCore()->printLn("[Streamer] Player %d throttle: %s (loss=%.1f%%)", player.playerId, tierNames[tier], player.networkPacketLoss);
+						}
 					}
 				}
 			}

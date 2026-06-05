@@ -38,6 +38,16 @@ public:
 		chunkStreamingEnabled = enabled;
 	}
 
+	inline bool getThrottleDebugEnabled()
+	{
+		return throttleDebugEnabled;
+	}
+
+	inline void setThrottleDebugEnabled(bool enabled)
+	{
+		throttleDebugEnabled = enabled;
+	}
+
 	void performPlayerChunkUpdate(Player &player, bool automatic);
 
 	void discoverMapIcons(Player &player, const std::vector<SharedCell> &cells);
@@ -83,6 +93,7 @@ private:
 	std::size_t chunkSize[STREAMER_MAX_TYPES];
 	std::size_t materialChunkSize;
 	bool chunkStreamingEnabled;
+	bool throttleDebugEnabled;
 };
 
 #endif

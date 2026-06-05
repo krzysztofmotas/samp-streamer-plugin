@@ -181,7 +181,7 @@ cell AMX_NATIVE_CALL Natives::Streamer_QueueObjectDiscovery(AMX *amx, cell *para
 		}
 		if (p->second.enabledItems[STREAMER_TYPE_OBJECT])
 		{
-			Utility::logError("Streamer_QueueObjectDiscovery: Object item update is enabled -- call Streamer_ToggleItemUpdate(playerid, STREAMER_TYPE_OBJECT, false) first or the next automatic tick will overwrite the discovery queue.");
+			Utility::logError("Streamer_QueueObjectDiscovery: Object item update is enabled - call Streamer_ToggleItemUpdate(playerid, STREAMER_TYPE_OBJECT, false) first or the next automatic tick will overwrite the discovery queue.");
 		}
 		Eigen::Vector3f savedPosition = p->second.position;
 		int savedWorldId = p->second.worldId;
