@@ -34,6 +34,8 @@ AMX_NATIVE_INFO natives[] =
 	{ "Streamer_SetPlayerTickRate", Natives::Streamer_SetPlayerTickRate },
 	{ "Streamer_ToggleChunkStream", Natives::Streamer_ToggleChunkStream },
 	{ "Streamer_IsToggleChunkStream", Natives::Streamer_IsToggleChunkStream },
+	{ "Streamer_ToggleNetworkThrottle", Natives::Streamer_ToggleNetworkThrottle },
+	{ "Streamer_IsToggleNetworkThrottle", Natives::Streamer_IsToggleNetworkThrottle },
 	{ "Streamer_ToggleNetworkThrottleDebug", Natives::Streamer_ToggleNetworkThrottleDebug },
 	{ "Streamer_IsToggleNetworkThrottleDebug", Natives::Streamer_IsToggleNetworkThrottleDebug },
 	{ "Streamer_GetChunkTickRate", Natives::Streamer_GetChunkTickRate },

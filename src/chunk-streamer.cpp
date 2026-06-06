@@ -26,6 +26,7 @@ ChunkStreamer::ChunkStreamer()
 	chunkSize[STREAMER_TYPE_3D_TEXT_LABEL] = 100;
 	materialChunkSize = 200;
 	chunkStreamingEnabled = false;
+	throttleEnabled = true;
 	throttleDebugEnabled = false;
 }
 

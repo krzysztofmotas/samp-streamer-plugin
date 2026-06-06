@@ -38,6 +38,16 @@ public:
 		chunkStreamingEnabled = enabled;
 	}
 
+	inline bool getThrottleEnabled()
+	{
+		return throttleEnabled;
+	}
+
+	inline void setThrottleEnabled(bool enabled)
+	{
+		throttleEnabled = enabled;
+	}
+
 	inline bool getThrottleDebugEnabled()
 	{
 		return throttleDebugEnabled;
@@ -79,6 +89,7 @@ public:
 private:
 	inline std::size_t throttledSize(std::size_t base, float packetLoss) const
 	{
+		if (!throttleEnabled) return base;
 		auto clamp1 = [](std::size_t v) { return v ? v : std::size_t(1); };
 		if (packetLoss >= THROTTLE_TIER3) return clamp1(base / 4);
 		if (packetLoss >= THROTTLE_TIER2) return clamp1(base / 2);
@@ -93,6 +104,7 @@ private:
 	std::size_t chunkSize[STREAMER_MAX_TYPES];
 	std::size_t materialChunkSize;
 	bool chunkStreamingEnabled;
+	bool throttleEnabled;
 	bool throttleDebugEnabled;
 };
 

@@ -188,6 +188,8 @@ native Streamer_GetPlayerTickRate(playerid);
 native Streamer_SetPlayerTickRate(playerid, rate);
 native Streamer_ToggleChunkStream(toggle);
 native Streamer_IsToggleChunkStream();
+native Streamer_ToggleNetworkThrottle(toggle);
+native Streamer_IsToggleNetworkThrottle();
 native Streamer_ToggleNetworkThrottleDebug(toggle);
 native Streamer_IsToggleNetworkThrottleDebug();
 native Streamer_GetChunkTickRate(type, playerid = -1);
