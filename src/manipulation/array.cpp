@@ -118,6 +118,14 @@ int Manipulation::setArrayData(AMX *amx, cell *params)
 		case STREAMER_TYPE_PICKUP:
 		{
 			result = setArrayDataForItem(core->getData()->pickups, amx, static_cast<int>(params[2]), static_cast<int>(params[3]), params[4], params[5], error);
+			if (static_cast<int>(params[3]) == WorldId)
+			{
+				std::unordered_map<int, Item::SharedPickup>::iterator p = core->getData()->pickups.find(static_cast<int>(params[2]));
+				if (p != core->getData()->pickups.end() && p->second->worlds.empty())
+				{
+					p->second->worlds.insert(-1);
+				}
+			}
 			break;
 		}
 		case STREAMER_TYPE_CP:
@@ -160,6 +168,14 @@ int Manipulation::setArrayData(AMX *amx, cell *params)
 		case STREAMER_TYPE_ACTOR:
 		{
 			result = setArrayDataForItem(core->getData()->actors, amx, static_cast<int>(params[2]), static_cast<int>(params[3]), params[4], params[5], error);
+			if (static_cast<int>(params[3]) == WorldId)
+			{
+				std::unordered_map<int, Item::SharedActor>::iterator a = core->getData()->actors.find(static_cast<int>(params[2]));
+				if (a != core->getData()->actors.end() && a->second->worlds.empty())
+				{
+					a->second->worlds.insert(-1);
+				}
+			}
 			break;
 		}
 		default:

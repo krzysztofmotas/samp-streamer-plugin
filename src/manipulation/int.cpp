@@ -1191,7 +1191,12 @@ int Manipulation::setIntData(AMX *amx, cell *params)
 					}
 					case WorldId:
 					{
-						return Utility::setFirstValueInContainer(p->second->worlds, static_cast<int>(params[4])) != 0;
+						Utility::setFirstValueInContainer(p->second->worlds, static_cast<int>(params[4]));
+						if (p->second->worlds.empty())
+						{
+							p->second->worlds.insert(-1);
+						}
+						return 1;
 					}
 					default:
 					{
@@ -1702,7 +1707,12 @@ int Manipulation::setIntData(AMX *amx, cell *params)
 					}
 					case WorldId:
 					{
-						return Utility::setFirstValueInContainer(a->second->worlds, static_cast<int>(params[4])) != 0;
+						Utility::setFirstValueInContainer(a->second->worlds, static_cast<int>(params[4]));
+						if (a->second->worlds.empty())
+						{
+							a->second->worlds.insert(-1);
+						}
+						return 1;
 					}
 					default:
 					{

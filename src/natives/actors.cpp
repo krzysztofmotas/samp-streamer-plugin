@@ -40,6 +40,10 @@ cell AMX_NATIVE_CALL Natives::CreateDynamicActor(AMX *amx, cell *params)
 	actor->invulnerable = static_cast<int>(params[6]) != 0;
 	actor->health = amx_ctof(params[7]);
 	Utility::addToContainer(actor->worlds, static_cast<int>(params[8]));
+	if (actor->worlds.empty())
+	{
+		actor->worlds.insert(-1);
+	}
 	Utility::addToContainer(actor->interiors, static_cast<int>(params[9]));
 	Utility::addToContainer(actor->players, static_cast<int>(params[10]));
 	actor->comparableStreamDistance = amx_ctof(params[11]) < STREAMER_STATIC_DISTANCE_CUTOFF ? amx_ctof(params[11]) : amx_ctof(params[11]) * amx_ctof(params[11]);
@@ -117,6 +121,10 @@ cell AMX_NATIVE_CALL Natives::SetDynamicActorVirtualWorld(AMX *amx, cell *params
 	if (a != core->getData()->actors.end())
 	{
 		Utility::setFirstValueInContainer(a->second->worlds, static_cast<int>(params[2]));
+		if (a->second->worlds.empty())
+		{
+			a->second->worlds.insert(-1);
+		}
 
 		for (std::unordered_set<int>::const_iterator w = a->second->worlds.begin(); w != a->second->worlds.end(); ++w)
 		{

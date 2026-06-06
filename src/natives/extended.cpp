@@ -74,6 +74,10 @@ cell AMX_NATIVE_CALL Natives::CreateDynamicPickupEx(AMX *amx, cell *params)
 	pickup->comparableStreamDistance = amx_ctof(params[6]) < STREAMER_STATIC_DISTANCE_CUTOFF ? amx_ctof(params[6]) : amx_ctof(params[6]) * amx_ctof(params[6]);
 	pickup->streamDistance = amx_ctof(params[6]);
 	Utility::convertArrayToContainer(amx, params[7], params[12], pickup->worlds);
+	if (pickup->worlds.empty())
+	{
+		pickup->worlds.insert(-1);
+	}
 	Utility::convertArrayToContainer(amx, params[8], params[13], pickup->interiors);
 	Utility::convertArrayToContainer(amx, params[9], params[14], pickup->players);
 	Utility::convertArrayToContainer(amx, params[10], params[15], pickup->areas);
@@ -398,6 +402,10 @@ cell AMX_NATIVE_CALL Natives::CreateDynamicActorEx(AMX *amx, cell *params)
 	actor->comparableStreamDistance = amx_ctof(params[8]) < STREAMER_STATIC_DISTANCE_CUTOFF ? amx_ctof(params[8]) : amx_ctof(params[8]) * amx_ctof(params[8]);
 	actor->streamDistance = amx_ctof(params[8]);
 	Utility::convertArrayToContainer(amx, params[9], params[14], actor->worlds);
+	if (actor->worlds.empty())
+	{
+		actor->worlds.insert(-1);
+	}
 	Utility::convertArrayToContainer(amx, params[10], params[15], actor->interiors);
 	Utility::convertArrayToContainer(amx, params[11], params[16], actor->players);
 	Utility::convertArrayToContainer(amx, params[12], params[17], actor->areas);
