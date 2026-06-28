@@ -106,8 +106,17 @@ cell AMX_NATIVE_CALL Natives::UpdateDynamic3DTextLabelText(AMX *amx, cell *param
 	std::unordered_map<int, Item::SharedTextLabel>::iterator t = core->getData()->textLabels.find(static_cast<int>(params[1]));
 	if (t != core->getData()->textLabels.end())
 	{
-		t->second->color = static_cast<int>(params[2]);
-		t->second->text = Utility::convertNativeStringToString(amx, params[3]);
+		int newColor = static_cast<int>(params[2]);
+		std::string newText = Utility::convertNativeStringToString(amx, params[3]);
+
+		if (t->second->color == newColor && t->second->text == newText)
+		{
+			return 1;
+		}
+
+		t->second->color = newColor;
+		t->second->text = newText;
+
 		for (std::unordered_map<int, Player>::iterator p = core->getData()->players.begin(); p != core->getData()->players.end(); ++p)
 		{
 			std::unordered_map<int, int>::iterator i = p->second.internalTextLabels.find(t->first);
