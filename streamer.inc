@@ -254,6 +254,7 @@ native Streamer_GetUpperBound(type);
 // Natives (Miscellaneous)
 
 native Streamer_GetDistanceToItem(Float:x, Float:y, Float:z, type, STREAMER_ALL_TAGS:id, &Float:distance, dimensions = 3);
+native Streamer_GetDistanceToAreaBoundary(Float:x, Float:y, Float:z, STREAMER_TAG_AREA:areaid, &Float:distance, dimensions = 3);
 native Streamer_ToggleItem(playerid, type, STREAMER_ALL_TAGS:id, toggle);
 native Streamer_IsToggleItem(playerid, type, STREAMER_ALL_TAGS:id);
 native Streamer_ToggleAllItems(playerid, type, toggle, const exceptions[] = { -1 }, maxexceptions = sizeof exceptions);

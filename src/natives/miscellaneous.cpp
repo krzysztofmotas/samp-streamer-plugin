@@ -198,6 +198,101 @@ cell AMX_NATIVE_CALL Natives::Streamer_GetDistanceToItem(AMX *amx, cell *params)
 	return 0;
 }
 
+cell AMX_NATIVE_CALL Natives::Streamer_GetDistanceToAreaBoundary(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(6);
+	std::unordered_map<int, Item::SharedArea>::iterator a = core->getData()->areas.find(static_cast<int>(params[4]));
+	if (a == core->getData()->areas.end())
+	{
+		return 0;
+	}
+	std::variant<Polygon2d, Box2d, Box3d, Eigen::Vector2f, Eigen::Vector3f> areaPosition;
+	if (a->second->attach)
+	{
+		areaPosition = a->second->attach->position;
+	}
+	else
+	{
+		areaPosition = a->second->position;
+	}
+	Eigen::Vector2f point2d(amx_ctof(params[1]), amx_ctof(params[2]));
+	float distance = 0.0f;
+	switch (a->second->type)
+	{
+		case STREAMER_AREA_TYPE_CIRCLE:
+		case STREAMER_AREA_TYPE_CYLINDER:
+		{
+			distance = std::fabs(static_cast<float>(boost::geometry::distance(point2d, std::get<Eigen::Vector2f>(areaPosition))) - a->second->size);
+			break;
+		}
+		case STREAMER_AREA_TYPE_SPHERE:
+		{
+			float centerDistance = 0.0f;
+			switch (static_cast<int>(params[6]))
+			{
+				case 2:
+				{
+					Eigen::Vector3f center = std::get<Eigen::Vector3f>(areaPosition);
+					centerDistance = static_cast<float>(boost::geometry::distance(point2d, Eigen::Vector2f(center[0], center[1])));
+					break;
+				}
+				case 3:
+				{
+					centerDistance = static_cast<float>(boost::geometry::distance(Eigen::Vector3f(amx_ctof(params[1]), amx_ctof(params[2]), amx_ctof(params[3])), std::get<Eigen::Vector3f>(areaPosition)));
+					break;
+				}
+				default:
+				{
+					Utility::logError("Streamer_GetDistanceToAreaBoundary: Invalid number of dimensions specified (outside range of 2-3).");
+					return 0;
+				}
+			}
+			distance = std::fabs(centerDistance - a->second->size);
+			break;
+		}
+		case STREAMER_AREA_TYPE_RECTANGLE:
+		{
+			distance = static_cast<float>(boost::geometry::distance(point2d, std::get<Box2d>(areaPosition)));
+			break;
+		}
+		case STREAMER_AREA_TYPE_CUBOID:
+		{
+			switch (static_cast<int>(params[6]))
+			{
+				case 2:
+				{
+					Box3d box3d = std::get<Box3d>(areaPosition);
+					Box2d box2d(Eigen::Vector2f(box3d.min_corner()[0], box3d.min_corner()[1]), Eigen::Vector2f(box3d.max_corner()[0], box3d.max_corner()[1]));
+					distance = static_cast<float>(boost::geometry::distance(point2d, box2d));
+					break;
+				}
+				case 3:
+				{
+					distance = static_cast<float>(boost::geometry::distance(Eigen::Vector3f(amx_ctof(params[1]), amx_ctof(params[2]), amx_ctof(params[3])), std::get<Box3d>(areaPosition)));
+					break;
+				}
+				default:
+				{
+					Utility::logError("Streamer_GetDistanceToAreaBoundary: Invalid number of dimensions specified (outside range of 2-3).");
+					return 0;
+				}
+			}
+			break;
+		}
+		case STREAMER_AREA_TYPE_POLYGON:
+		{
+			distance = static_cast<float>(boost::geometry::distance(point2d, std::get<Polygon2d>(areaPosition)));
+			break;
+		}
+		default:
+		{
+			return 0;
+		}
+	}
+	Utility::storeFloatInNative(amx, params[5], distance);
+	return 1;
+}
+
 cell AMX_NATIVE_CALL Natives::Streamer_ToggleItem(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(4);

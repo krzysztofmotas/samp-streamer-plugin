@@ -94,6 +94,7 @@ namespace Natives
 	cell AMX_NATIVE_CALL Streamer_GetUpperBound(AMX *amx, cell *params);
 	// Miscellaneous
 	cell AMX_NATIVE_CALL Streamer_GetDistanceToItem(AMX *amx, cell *params);
+	cell AMX_NATIVE_CALL Streamer_GetDistanceToAreaBoundary(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL Streamer_ToggleItem(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL Streamer_IsToggleItem(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL Streamer_ToggleAllItems(AMX *amx, cell *params);
