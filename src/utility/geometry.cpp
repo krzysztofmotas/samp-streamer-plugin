@@ -121,6 +121,19 @@ bool Utility::isPointInArea(const Eigen::Vector3f &point, const Item::SharedArea
 	return false;
 }
 
+float Utility::getVerticalDistanceToRange(float z, const Eigen::Vector2f &height)
+{
+	if (!std::isinf(height[0]) && z < height[0])
+	{
+		return height[0] - z;
+	}
+	if (!std::isinf(height[1]) && z > height[1])
+	{
+		return z - height[1];
+	}
+	return 0.0f;
+}
+
 void Utility::constructAttachedArea(const Item::SharedArea &area, const std::variant<float, Eigen::Vector3f, Eigen::Vector4f> &orientation, const Eigen::Vector3f location)
 {
 	if (area->attach)

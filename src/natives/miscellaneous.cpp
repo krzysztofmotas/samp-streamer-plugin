@@ -207,22 +207,50 @@ cell AMX_NATIVE_CALL Natives::Streamer_GetDistanceToAreaBoundary(AMX *amx, cell 
 		return 0;
 	}
 	std::variant<Polygon2d, Box2d, Box3d, Eigen::Vector2f, Eigen::Vector3f> areaPosition;
+	Eigen::Vector2f height = Eigen::Vector2f::Zero();
 	if (a->second->attach)
 	{
 		areaPosition = a->second->attach->position;
+		height = a->second->attach->height;
 	}
 	else
 	{
 		areaPosition = a->second->position;
+		height = a->second->height;
 	}
 	Eigen::Vector2f point2d(amx_ctof(params[1]), amx_ctof(params[2]));
+	float z = amx_ctof(params[3]);
 	float distance = 0.0f;
 	switch (a->second->type)
 	{
 		case STREAMER_AREA_TYPE_CIRCLE:
+		{
+			float planarDistance = static_cast<float>(boost::geometry::distance(point2d, std::get<Eigen::Vector2f>(areaPosition)));
+			distance = std::max(planarDistance - a->second->size, 0.0f);
+			break;
+		}
 		case STREAMER_AREA_TYPE_CYLINDER:
 		{
-			distance = std::fabs(static_cast<float>(boost::geometry::distance(point2d, std::get<Eigen::Vector2f>(areaPosition))) - a->second->size);
+			float planarDistance = std::max(static_cast<float>(boost::geometry::distance(point2d, std::get<Eigen::Vector2f>(areaPosition))) - a->second->size, 0.0f);
+			switch (static_cast<int>(params[6]))
+			{
+				case 2:
+				{
+					distance = planarDistance;
+					break;
+				}
+				case 3:
+				{
+					float verticalDistance = Utility::getVerticalDistanceToRange(z, height);
+					distance = std::sqrt(planarDistance * planarDistance + verticalDistance * verticalDistance);
+					break;
+				}
+				default:
+				{
+					Utility::logError("Streamer_GetDistanceToAreaBoundary: Invalid number of dimensions specified (outside range of 2-3).");
+					return 0;
+				}
+			}
 			break;
 		}
 		case STREAMER_AREA_TYPE_SPHERE:
@@ -247,7 +275,7 @@ cell AMX_NATIVE_CALL Natives::Streamer_GetDistanceToAreaBoundary(AMX *amx, cell 
 					return 0;
 				}
 			}
-			distance = std::fabs(centerDistance - a->second->size);
+			distance = std::max(centerDistance - a->second->size, 0.0f);
 			break;
 		}
 		case STREAMER_AREA_TYPE_RECTANGLE:
@@ -281,7 +309,26 @@ cell AMX_NATIVE_CALL Natives::Streamer_GetDistanceToAreaBoundary(AMX *amx, cell 
 		}
 		case STREAMER_AREA_TYPE_POLYGON:
 		{
-			distance = static_cast<float>(boost::geometry::distance(point2d, std::get<Polygon2d>(areaPosition)));
+			float planarDistance = static_cast<float>(boost::geometry::distance(point2d, std::get<Polygon2d>(areaPosition)));
+			switch (static_cast<int>(params[6]))
+			{
+				case 2:
+				{
+					distance = planarDistance;
+					break;
+				}
+				case 3:
+				{
+					float verticalDistance = Utility::getVerticalDistanceToRange(z, height);
+					distance = std::sqrt(planarDistance * planarDistance + verticalDistance * verticalDistance);
+					break;
+				}
+				default:
+				{
+					Utility::logError("Streamer_GetDistanceToAreaBoundary: Invalid number of dimensions specified (outside range of 2-3).");
+					return 0;
+				}
+			}
 			break;
 		}
 		default:

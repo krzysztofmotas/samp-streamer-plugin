@@ -24,6 +24,7 @@ namespace Utility
 {
 	bool doesLineSegmentIntersectArea(const Eigen::Vector3f &lineSegmentStart, const Eigen::Vector3f &lineSegmentEnd, const Item::SharedArea &area);
 	bool isPointInArea(const Eigen::Vector3f &point, const Item::SharedArea &area);
+	float getVerticalDistanceToRange(float z, const Eigen::Vector2f &height);
 
 	void constructAttachedArea(const Item::SharedArea &area, const std::variant<float, Eigen::Vector3f, Eigen::Vector4f> &orientation, const Eigen::Vector3f location);
 
