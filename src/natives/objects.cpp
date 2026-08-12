@@ -726,10 +726,101 @@ cell AMX_NATIVE_CALL Natives::SetDynamicObjectMaterialText(AMX *amx, cell *param
 			std::unordered_map<int, int>::iterator i = p->second.internalObjects.find(o->first);
 			if (i != p->second.internalObjects.end())
 			{
-				ompgdk::SetPlayerObjectMaterialText(p->first, i->second, o->second->materials[index].text->materialText.c_str(), index, o->second->materials[index].text->materialSize, o->second->materials[index].text->fontFace.c_str(), o->second->materials[index].text->fontSize, o->second->materials[index].text->bold, o->second->materials[index].text->fontColor, o->second->materials[index].text->backColor, o->second->materials[index].text->textAlignment);
+				ompgdk::SetPlayerObjectMaterialText(p->first, i->second, Utility::getMaterialTextForLanguage(o->second->materials[index].text, p->second.language).c_str(), index, o->second->materials[index].text->materialSize, o->second->materials[index].text->fontFace.c_str(), o->second->materials[index].text->fontSize, o->second->materials[index].text->bold, o->second->materials[index].text->fontColor, o->second->materials[index].text->backColor, o->second->materials[index].text->textAlignment);
 			}
 		}
 		o->second->materials[index].main.reset();
+		return 1;
+	}
+	return 0;
+}
+
+cell AMX_NATIVE_CALL Natives::SetDynamicObjectMaterialLangText(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(4);
+	std::unordered_map<int, Item::SharedObject>::iterator o = core->getData()->objects.find(static_cast<int>(params[1]));
+	if (o != core->getData()->objects.end())
+	{
+		int index = static_cast<int>(params[2]);
+		std::unordered_map<int, Item::Object::Material>::iterator m = o->second->materials.find(index);
+		if (m == o->second->materials.end() || !m->second.text)
+		{
+			return 0;
+		}
+		int language = static_cast<int>(params[3]);
+		std::string newText = Utility::convertNativeStringToString(amx, params[4]);
+
+		m->second.text->languageTexts[language] = newText;
+
+		for (std::unordered_map<int, Player>::iterator p = core->getData()->players.begin(); p != core->getData()->players.end(); ++p)
+		{
+			if (p->second.language != language)
+			{
+				continue;
+			}
+			std::unordered_map<int, int>::iterator i = p->second.internalObjects.find(o->first);
+			if (i != p->second.internalObjects.end())
+			{
+				ompgdk::SetPlayerObjectMaterialText(p->first, i->second, newText.c_str(), index, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
+			}
+		}
+		return 1;
+	}
+	return 0;
+}
+
+cell AMX_NATIVE_CALL Natives::GetDynamicObjectMaterialLangText(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(5);
+	std::unordered_map<int, Item::SharedObject>::iterator o = core->getData()->objects.find(static_cast<int>(params[1]));
+	if (o != core->getData()->objects.end())
+	{
+		std::unordered_map<int, Item::Object::Material>::iterator m = o->second->materials.find(static_cast<int>(params[2]));
+		if (m == o->second->materials.end() || !m->second.text)
+		{
+			return 0;
+		}
+		int language = static_cast<int>(params[3]);
+		cell *text = NULL;
+		amx_GetAddr(amx, params[4], &text);
+		amx_SetString(text, Utility::getMaterialTextForLanguage(m->second.text, language).c_str(), 0, 0, static_cast<size_t>(params[5]));
+		return 1;
+	}
+	return 0;
+}
+
+cell AMX_NATIVE_CALL Natives::RemoveDynamicObjectMaterialLangText(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(3);
+	std::unordered_map<int, Item::SharedObject>::iterator o = core->getData()->objects.find(static_cast<int>(params[1]));
+	if (o != core->getData()->objects.end())
+	{
+		int index = static_cast<int>(params[2]);
+		std::unordered_map<int, Item::Object::Material>::iterator m = o->second->materials.find(index);
+		if (m == o->second->materials.end() || !m->second.text)
+		{
+			return 0;
+		}
+		int language = static_cast<int>(params[3]);
+		std::unordered_map<int, std::string>::iterator l = m->second.text->languageTexts.find(language);
+		if (l == m->second.text->languageTexts.end())
+		{
+			return 0;
+		}
+		m->second.text->languageTexts.erase(l);
+
+		for (std::unordered_map<int, Player>::iterator p = core->getData()->players.begin(); p != core->getData()->players.end(); ++p)
+		{
+			if (p->second.language != language)
+			{
+				continue;
+			}
+			std::unordered_map<int, int>::iterator i = p->second.internalObjects.find(o->first);
+			if (i != p->second.internalObjects.end())
+			{
+				ompgdk::SetPlayerObjectMaterialText(p->first, i->second, m->second.text->materialText.c_str(), index, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
+			}
+		}
 		return 1;
 	}
 	return 0;

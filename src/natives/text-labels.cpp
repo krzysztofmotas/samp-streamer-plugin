@@ -122,6 +122,80 @@ cell AMX_NATIVE_CALL Natives::UpdateDynamic3DTextLabelText(AMX *amx, cell *param
 			std::unordered_map<int, int>::iterator i = p->second.internalTextLabels.find(t->first);
 			if (i != p->second.internalTextLabels.end())
 			{
+				ompgdk::UpdatePlayer3DTextLabelText(p->first, i->second, t->second->color, Utility::getTextLabelTextForLanguage(t->second, p->second.language).c_str());
+			}
+		}
+		return 1;
+	}
+	return 0;
+}
+
+cell AMX_NATIVE_CALL Natives::SetDynamic3DTextLabelLangText(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(3);
+	std::unordered_map<int, Item::SharedTextLabel>::iterator t = core->getData()->textLabels.find(static_cast<int>(params[1]));
+	if (t != core->getData()->textLabels.end())
+	{
+		int language = static_cast<int>(params[2]);
+		std::string newText = Utility::convertNativeStringToString(amx, params[3]);
+
+		t->second->languageTexts[language] = newText;
+
+		for (std::unordered_map<int, Player>::iterator p = core->getData()->players.begin(); p != core->getData()->players.end(); ++p)
+		{
+			if (p->second.language != language)
+			{
+				continue;
+			}
+			std::unordered_map<int, int>::iterator i = p->second.internalTextLabels.find(t->first);
+			if (i != p->second.internalTextLabels.end())
+			{
+				ompgdk::UpdatePlayer3DTextLabelText(p->first, i->second, t->second->color, newText.c_str());
+			}
+		}
+		return 1;
+	}
+	return 0;
+}
+
+cell AMX_NATIVE_CALL Natives::GetDynamic3DTextLabelLangText(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(4);
+	std::unordered_map<int, Item::SharedTextLabel>::iterator t = core->getData()->textLabels.find(static_cast<int>(params[1]));
+	if (t != core->getData()->textLabels.end())
+	{
+		int language = static_cast<int>(params[2]);
+		cell *text = NULL;
+		amx_GetAddr(amx, params[3], &text);
+		amx_SetString(text, Utility::getTextLabelTextForLanguage(t->second, language).c_str(), 0, 0, static_cast<size_t>(params[4]));
+		return 1;
+	}
+	return 0;
+}
+
+cell AMX_NATIVE_CALL Natives::RemoveDynamic3DTextLabelLangText(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(2);
+	std::unordered_map<int, Item::SharedTextLabel>::iterator t = core->getData()->textLabels.find(static_cast<int>(params[1]));
+	if (t != core->getData()->textLabels.end())
+	{
+		int language = static_cast<int>(params[2]);
+		std::unordered_map<int, std::string>::iterator l = t->second->languageTexts.find(language);
+		if (l == t->second->languageTexts.end())
+		{
+			return 0;
+		}
+		t->second->languageTexts.erase(l);
+
+		for (std::unordered_map<int, Player>::iterator p = core->getData()->players.begin(); p != core->getData()->players.end(); ++p)
+		{
+			if (p->second.language != language)
+			{
+				continue;
+			}
+			std::unordered_map<int, int>::iterator i = p->second.internalTextLabels.find(t->first);
+			if (i != p->second.internalTextLabels.end())
+			{
 				ompgdk::UpdatePlayer3DTextLabelText(p->first, i->second, t->second->color, t->second->text.c_str());
 			}
 		}

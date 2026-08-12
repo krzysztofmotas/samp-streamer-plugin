@@ -111,6 +111,8 @@ namespace Natives
 	cell AMX_NATIVE_CALL Streamer_SetItemPos(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL Streamer_GetItemOffset(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL Streamer_SetItemOffset(AMX *amx, cell *params);
+	cell AMX_NATIVE_CALL Streamer_SetPlayerLanguage(AMX *amx, cell *params);
+	cell AMX_NATIVE_CALL Streamer_GetPlayerLanguage(AMX *amx, cell *params);
 	// Objects
 	cell AMX_NATIVE_CALL CreateDynamicObject(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL DestroyDynamicObject(AMX *amx, cell *params);
@@ -137,6 +139,9 @@ namespace Natives
 	cell AMX_NATIVE_CALL RemoveDynamicObjectMaterialText(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL GetDynamicObjectMaterialText(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL SetDynamicObjectMaterialText(AMX *amx, cell *params);
+	cell AMX_NATIVE_CALL SetDynamicObjectMaterialLangText(AMX *amx, cell *params);
+	cell AMX_NATIVE_CALL GetDynamicObjectMaterialLangText(AMX *amx, cell *params);
+	cell AMX_NATIVE_CALL RemoveDynamicObjectMaterialLangText(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL GetPlayerCameraTargetDynObject(AMX *amx, cell *params);
 	// Pickups
 	cell AMX_NATIVE_CALL CreateDynamicPickup(AMX *amx, cell *params);
@@ -164,6 +169,9 @@ namespace Natives
 	cell AMX_NATIVE_CALL IsValidDynamic3DTextLabel(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL GetDynamic3DTextLabelText(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL UpdateDynamic3DTextLabelText(AMX *amx, cell *params);
+	cell AMX_NATIVE_CALL SetDynamic3DTextLabelLangText(AMX *amx, cell *params);
+	cell AMX_NATIVE_CALL GetDynamic3DTextLabelLangText(AMX *amx, cell *params);
+	cell AMX_NATIVE_CALL RemoveDynamic3DTextLabelLangText(AMX *amx, cell *params);
 	// Areas
 	cell AMX_NATIVE_CALL CreateDynamicCircle(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL CreateDynamicCylinder(AMX *amx, cell *params);

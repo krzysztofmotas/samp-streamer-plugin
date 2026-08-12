@@ -30,6 +30,9 @@ namespace Utility
 	std::unordered_map<int, Item::SharedRaceCheckpoint>::iterator destroyRaceCheckpoint(std::unordered_map<int, Item::SharedRaceCheckpoint>::iterator r);
 	std::unordered_map<int, Item::SharedTextLabel>::iterator destroyTextLabel(std::unordered_map<int, Item::SharedTextLabel>::iterator t);
 
+	const std::string &getTextLabelTextForLanguage(const Item::SharedTextLabel &textLabel, int language);
+	const std::string &getMaterialTextForLanguage(const std::shared_ptr<Item::Object::Material::Text> &materialText, int language);
+
 	std::size_t getChunkTickRate(int type, int playerid);
 	bool setChunkTickRate(int type, std::size_t value, int playerid);
 

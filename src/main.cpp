@@ -111,6 +111,8 @@ AMX_NATIVE_INFO natives[] =
 	{ "Streamer_SetItemPos", Natives::Streamer_SetItemPos },
 	{ "Streamer_GetItemOffset", Natives::Streamer_GetItemOffset },
 	{ "Streamer_SetItemOffset", Natives::Streamer_SetItemOffset },
+	{ "Streamer_SetPlayerLanguage", Natives::Streamer_SetPlayerLanguage },
+	{ "Streamer_GetPlayerLanguage", Natives::Streamer_GetPlayerLanguage },
 	// Objects
 	{ "CreateDynamicObject", Natives::CreateDynamicObject },
 	{ "DestroyDynamicObject", Natives::DestroyDynamicObject },
@@ -137,6 +139,9 @@ AMX_NATIVE_INFO natives[] =
 	{ "RemoveDynamicObjectMaterialText", Natives::RemoveDynamicObjectMaterialText, },
 	{ "GetDynamicObjectMaterialText", Natives::GetDynamicObjectMaterialText },
 	{ "SetDynamicObjectMaterialText", Natives::SetDynamicObjectMaterialText },
+	{ "SetDynamicObjectMaterialLangText", Natives::SetDynamicObjectMaterialLangText },
+	{ "GetDynamicObjectMaterialLangText", Natives::GetDynamicObjectMaterialLangText },
+	{ "RemoveDynamicObjectMaterialLangText", Natives::RemoveDynamicObjectMaterialLangText },
 	{ "GetPlayerCameraTargetDynObject", Natives::GetPlayerCameraTargetDynObject },
 	// Pickups
 	{ "CreateDynamicPickup", Natives::CreateDynamicPickup },
@@ -164,6 +169,9 @@ AMX_NATIVE_INFO natives[] =
 	{ "IsValidDynamic3DTextLabel", Natives::IsValidDynamic3DTextLabel },
 	{ "GetDynamic3DTextLabelText", Natives::GetDynamic3DTextLabelText },
 	{ "UpdateDynamic3DTextLabelText", Natives::UpdateDynamic3DTextLabelText },
+	{ "SetDynamic3DTextLabelLangText", Natives::SetDynamic3DTextLabelLangText },
+	{ "GetDynamic3DTextLabelLangText", Natives::GetDynamic3DTextLabelLangText },
+	{ "RemoveDynamic3DTextLabelLangText", Natives::RemoveDynamic3DTextLabelLangText },
 	// Areas
 	{ "CreateDynamicCircle", Natives::CreateDynamicCircle },
 	{ "CreateDynamicCylinder", Natives::CreateDynamicCylinder },

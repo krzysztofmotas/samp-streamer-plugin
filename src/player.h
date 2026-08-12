@@ -39,6 +39,7 @@ struct Player
 	std::chrono::steady_clock::time_point delayedUpdateTime;
 	int delayedUpdateType;
 	int interiorId;
+	int language = 0;
 	std::size_t maxVisibleMapIcons;
 	std::size_t maxVisibleObjects;
 	std::size_t maxVisibleTextLabels;

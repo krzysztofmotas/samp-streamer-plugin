@@ -2597,3 +2597,53 @@ cell AMX_NATIVE_CALL Natives::Streamer_SetItemOffset(AMX *amx, cell *params)
 	}
 	return 0;
 }
+
+cell AMX_NATIVE_CALL Natives::Streamer_SetPlayerLanguage(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(2);
+	std::unordered_map<int, Player>::iterator p = core->getData()->players.find(static_cast<int>(params[1]));
+	if (p != core->getData()->players.end())
+	{
+		int language = static_cast<int>(params[2]);
+		if (p->second.language == language)
+		{
+			return 1;
+		}
+		p->second.language = language;
+		for (std::unordered_map<int, int>::iterator i = p->second.internalTextLabels.begin(); i != p->second.internalTextLabels.end(); ++i)
+		{
+			std::unordered_map<int, Item::SharedTextLabel>::iterator t = core->getData()->textLabels.find(i->first);
+			if (t != core->getData()->textLabels.end())
+			{
+				ompgdk::UpdatePlayer3DTextLabelText(p->first, i->second, t->second->color, Utility::getTextLabelTextForLanguage(t->second, language).c_str());
+			}
+		}
+		for (std::unordered_map<int, int>::iterator i = p->second.internalObjects.begin(); i != p->second.internalObjects.end(); ++i)
+		{
+			std::unordered_map<int, Item::SharedObject>::iterator o = core->getData()->objects.find(i->first);
+			if (o != core->getData()->objects.end())
+			{
+				for (std::unordered_map<int, Item::Object::Material>::iterator m = o->second->materials.begin(); m != o->second->materials.end(); ++m)
+				{
+					if (m->second.text)
+					{
+						ompgdk::SetPlayerObjectMaterialText(p->first, i->second, Utility::getMaterialTextForLanguage(m->second.text, language).c_str(), m->first, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
+					}
+				}
+			}
+		}
+		return 1;
+	}
+	return 0;
+}
+
+cell AMX_NATIVE_CALL Natives::Streamer_GetPlayerLanguage(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(1);
+	std::unordered_map<int, Player>::iterator p = core->getData()->players.find(static_cast<int>(params[1]));
+	if (p != core->getData()->players.end())
+	{
+		return static_cast<cell>(p->second.language);
+	}
+	return 0;
+}

@@ -248,6 +248,8 @@ namespace Item
 				int materialSize;
 				std::string materialText;
 				int textAlignment;
+
+				std::unordered_map<int, std::string> languageTexts;
 			};
 
 			std::shared_ptr<Text> text;
@@ -366,6 +368,8 @@ namespace Item
 		bool testLOS;
 		std::string text;
 		int textLabelId;
+
+		std::unordered_map<int, std::string> languageTexts;
 
 		struct Attach
 		{

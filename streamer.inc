@@ -271,6 +271,8 @@ native Streamer_GetItemPos(type, STREAMER_ALL_TAGS:id, &Float:x, &Float:y, &Floa
 native Streamer_SetItemPos(type, STREAMER_ALL_TAGS:id, Float:x, Float:y, Float:z);
 native Streamer_GetItemOffset(type, STREAMER_ALL_TAGS:id, &Float:x, &Float:y, &Float:z);
 native Streamer_SetItemOffset(type, STREAMER_ALL_TAGS:id, Float:x, Float:y, Float:z);
+native Streamer_SetPlayerLanguage(playerid, languageid);
+native Streamer_GetPlayerLanguage(playerid);
 
 // Natives (Objects)
 
@@ -299,6 +301,9 @@ native IsDynamicObjectMaterialTextUsed(STREAMER_TAG_OBJECT:objectid, materialind
 native RemoveDynamicObjectMaterialText(STREAMER_TAG_OBJECT:objectid, materialindex);
 native GetDynamicObjectMaterialText(STREAMER_TAG_OBJECT:objectid, materialindex, text[], &materialsize, fontface[], &fontsize, &bold, &fontcolor, &backcolor, &textalignment, maxtext = sizeof text, maxfontface = sizeof fontface);
 native SetDynamicObjectMaterialText(STREAMER_TAG_OBJECT:objectid, materialindex, const text[], materialsize = OBJECT_MATERIAL_SIZE_256x128, const fontface[] = "Arial", fontsize = 24, bold = 1, fontcolor = 0xFFFFFFFF, backcolor = 0, textalignment = 0);
+native SetDynamicObjectMaterialLangText(STREAMER_TAG_OBJECT:objectid, materialindex, languageid, const text[]);
+native GetDynamicObjectMaterialLangText(STREAMER_TAG_OBJECT:objectid, materialindex, languageid, text[], maxtext = sizeof text);
+native RemoveDynamicObjectMaterialLangText(STREAMER_TAG_OBJECT:objectid, materialindex, languageid);
 native STREAMER_TAG_OBJECT:GetPlayerCameraTargetDynObject(playerid);
 
 // Natives (Pickups)
@@ -336,6 +341,9 @@ native DestroyDynamic3DTextLabel(STREAMER_TAG_3D_TEXT_LABEL:id);
 native IsValidDynamic3DTextLabel(STREAMER_TAG_3D_TEXT_LABEL:id);
 native GetDynamic3DTextLabelText(STREAMER_TAG_3D_TEXT_LABEL:id, text[], maxtext = sizeof text);
 native UpdateDynamic3DTextLabelText(STREAMER_TAG_3D_TEXT_LABEL:id, color, const text[]);
+native SetDynamic3DTextLabelLangText(STREAMER_TAG_3D_TEXT_LABEL:id, languageid, const text[]);
+native GetDynamic3DTextLabelLangText(STREAMER_TAG_3D_TEXT_LABEL:id, languageid, text[], maxtext = sizeof text);
+native RemoveDynamic3DTextLabelLangText(STREAMER_TAG_3D_TEXT_LABEL:id, languageid);
 
 // Natives (Areas)
 

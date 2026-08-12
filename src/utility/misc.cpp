@@ -206,6 +206,26 @@ std::unordered_map<int, Item::SharedTextLabel>::iterator Utility::destroyTextLab
 	return core->getData()->textLabels.erase(t);
 }
 
+const std::string &Utility::getTextLabelTextForLanguage(const Item::SharedTextLabel &textLabel, int language)
+{
+	std::unordered_map<int, std::string>::const_iterator l = textLabel->languageTexts.find(language);
+	if (l != textLabel->languageTexts.end())
+	{
+		return l->second;
+	}
+	return textLabel->text;
+}
+
+const std::string &Utility::getMaterialTextForLanguage(const std::shared_ptr<Item::Object::Material::Text> &materialText, int language)
+{
+	std::unordered_map<int, std::string>::const_iterator l = materialText->languageTexts.find(language);
+	if (l != materialText->languageTexts.end())
+	{
+		return l->second;
+	}
+	return materialText->materialText;
+}
+
 std::size_t Utility::getChunkTickRate(int type, int playerid)
 {
 	if (playerid >= 0 && playerid < PLAYER_POOL_SIZE)
