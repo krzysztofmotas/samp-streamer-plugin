@@ -95,7 +95,7 @@ stock UpdateDynamic3DTextLabelLangTextf(STREAMER_TAG_3D_TEXT_LABEL:label, color,
         Lang_GetText(lang, key, template);
         if (numargs() > 3)
         {
-            va_format(text, _, template, va_start<3>);
+            va_format(text, sizeof(text), template, va_start<3>);
         }
         else
         {
