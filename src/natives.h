@@ -111,8 +111,8 @@ namespace Natives
 	cell AMX_NATIVE_CALL Streamer_SetItemPos(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL Streamer_GetItemOffset(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL Streamer_SetItemOffset(AMX *amx, cell *params);
-	cell AMX_NATIVE_CALL Streamer_SetPlayerLanguage(AMX *amx, cell *params);
-	cell AMX_NATIVE_CALL Streamer_GetPlayerLanguage(AMX *amx, cell *params);
+	cell AMX_NATIVE_CALL Streamer_SetPlayerLang(AMX *amx, cell *params);
+	cell AMX_NATIVE_CALL Streamer_GetPlayerLang(AMX *amx, cell *params);
 	// Objects
 	cell AMX_NATIVE_CALL CreateDynamicObject(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL DestroyDynamicObject(AMX *amx, cell *params);

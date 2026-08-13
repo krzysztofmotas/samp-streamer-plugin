@@ -2596,7 +2596,7 @@ cell AMX_NATIVE_CALL Natives::Streamer_SetItemOffset(AMX *amx, cell *params)
 	return 0;
 }
 
-cell AMX_NATIVE_CALL Natives::Streamer_SetPlayerLanguage(AMX *amx, cell *params)
+cell AMX_NATIVE_CALL Natives::Streamer_SetPlayerLang(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(2);
 	std::unordered_map<int, Player>::iterator p = core->getData()->players.find(static_cast<int>(params[1]));
@@ -2635,7 +2635,7 @@ cell AMX_NATIVE_CALL Natives::Streamer_SetPlayerLanguage(AMX *amx, cell *params)
 	return 0;
 }
 
-cell AMX_NATIVE_CALL Natives::Streamer_GetPlayerLanguage(AMX *amx, cell *params)
+cell AMX_NATIVE_CALL Natives::Streamer_GetPlayerLang(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(1);
 	std::unordered_map<int, Player>::iterator p = core->getData()->players.find(static_cast<int>(params[1]));

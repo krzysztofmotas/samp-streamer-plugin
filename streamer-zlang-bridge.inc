@@ -16,7 +16,7 @@ stock StreamerZLang_SetPlayerLang(playerid, Lang:lang)
     new result = Lang_SetPlayerLang(playerid, lang);
     if (result)
     {
-        Streamer_SetPlayerLanguage(playerid, _:lang);
+        Streamer_SetPlayerLang(playerid, _:lang);
     }
     return result;
 }
@@ -33,7 +33,7 @@ stock Lang:StreamerZLang_SetPlayerLangByCode(playerid, const code[])
     new Lang:lang = Lang_SetPlayerLangByCode(playerid, code);
     if (lang != INVALID_LANG_ID)
     {
-        Streamer_SetPlayerLanguage(playerid, _:lang);
+        Streamer_SetPlayerLang(playerid, _:lang);
     }
     return lang;
 }
@@ -50,7 +50,7 @@ stock Lang:StreamerZLang_SetPlayerLangByName(playerid, const name[])
     new Lang:lang = Lang_SetPlayerLangByName(playerid, name);
     if (lang != INVALID_LANG_ID)
     {
-        Streamer_SetPlayerLanguage(playerid, _:lang);
+        Streamer_SetPlayerLang(playerid, _:lang);
     }
     return lang;
 }

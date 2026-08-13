@@ -111,8 +111,8 @@ AMX_NATIVE_INFO natives[] =
 	{ "Streamer_SetItemPos", Natives::Streamer_SetItemPos },
 	{ "Streamer_GetItemOffset", Natives::Streamer_GetItemOffset },
 	{ "Streamer_SetItemOffset", Natives::Streamer_SetItemOffset },
-	{ "Streamer_SetPlayerLanguage", Natives::Streamer_SetPlayerLanguage },
-	{ "Streamer_GetPlayerLanguage", Natives::Streamer_GetPlayerLanguage },
+	{ "Streamer_SetPlayerLang", Natives::Streamer_SetPlayerLang },
+	{ "Streamer_GetPlayerLang", Natives::Streamer_GetPlayerLang },
 	// Objects
 	{ "CreateDynamicObject", Natives::CreateDynamicObject },
 	{ "DestroyDynamicObject", Natives::DestroyDynamicObject },

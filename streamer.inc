@@ -271,8 +271,8 @@ native Streamer_GetItemPos(type, STREAMER_ALL_TAGS:id, &Float:x, &Float:y, &Floa
 native Streamer_SetItemPos(type, STREAMER_ALL_TAGS:id, Float:x, Float:y, Float:z);
 native Streamer_GetItemOffset(type, STREAMER_ALL_TAGS:id, &Float:x, &Float:y, &Float:z);
 native Streamer_SetItemOffset(type, STREAMER_ALL_TAGS:id, Float:x, Float:y, Float:z);
-native Streamer_SetPlayerLanguage(playerid, languageid);
-native Streamer_GetPlayerLanguage(playerid);
+native Streamer_SetPlayerLang(playerid, languageid);
+native Streamer_GetPlayerLang(playerid);
 
 // Natives (Objects)
 
