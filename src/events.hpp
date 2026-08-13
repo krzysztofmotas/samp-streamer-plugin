@@ -63,31 +63,28 @@ class PlayerEvents :
 		std::unordered_map<int, Player>::iterator p = core->getData()->players.find(playerid);
 		if (p != core->getData()->players.end())
 		{
-			for (std::unordered_map<int, int>::iterator i = p->second.internalObjects.begin(); i != p->second.internalObjects.end(); ++i)
+			std::unordered_map<int, int>::iterator r = p->second.internalObjectsReverse.find(bulletData.hitID);
+			if (r != p->second.internalObjectsReverse.end())
 			{
-				if (i->second == bulletData.hitID)
+				int objectid = r->second;
+				for (std::set<AMX*>::iterator a = core->getData()->interfaces.begin(); a != core->getData()->interfaces.end(); ++a)
 				{
-					int objectid = i->first;
-					for (std::set<AMX*>::iterator a = core->getData()->interfaces.begin(); a != core->getData()->interfaces.end(); ++a)
+					int amxIndex = 0;
+					cell amxRetVal = 0;
+					if (!amx_FindPublic(*a, "OnPlayerShootDynamicObject", &amxIndex))
 					{
-						int amxIndex = 0;
-						cell amxRetVal = 0;
-						if (!amx_FindPublic(*a, "OnPlayerShootDynamicObject", &amxIndex))
+						amx_Push(*a, amx_ftoc(bulletData.offset.z));
+						amx_Push(*a, amx_ftoc(bulletData.offset.y));
+						amx_Push(*a, amx_ftoc(bulletData.offset.x));
+						amx_Push(*a, static_cast<cell>(objectid));
+						amx_Push(*a, static_cast<cell>(bulletData.weapon));
+						amx_Push(*a, static_cast<cell>(playerid));
+						amx_Exec(*a, &amxRetVal, amxIndex);
+						if (!amxRetVal)
 						{
-							amx_Push(*a, amx_ftoc(bulletData.offset.z));
-							amx_Push(*a, amx_ftoc(bulletData.offset.y));
-							amx_Push(*a, amx_ftoc(bulletData.offset.x));
-							amx_Push(*a, static_cast<cell>(objectid));
-							amx_Push(*a, static_cast<cell>(bulletData.weapon));
-							amx_Push(*a, static_cast<cell>(playerid));
-							amx_Exec(*a, &amxRetVal, amxIndex);
-							if (!amxRetVal)
-							{
-								retVal = false;
-							}
+							retVal = false;
 						}
 					}
-					break;
 				}
 			}
 		}
@@ -326,47 +323,45 @@ class ObjectEvents : public ObjectEventHandler, public Singleton<ObjectEvents>
 		std::unordered_map<int, Player>::iterator p = core->getData()->players.find(playerid);
 		if (p != core->getData()->players.end())
 		{
-			for (std::unordered_map<int, int>::iterator i = p->second.internalObjects.begin(); i != p->second.internalObjects.end(); ++i)
+			std::unordered_map<int, int>::iterator r = p->second.internalObjectsReverse.find(objectid);
+			if (r != p->second.internalObjectsReverse.end())
 			{
-				if (i->second == objectid)
+				int dynObjectId = r->second;
+				if (response == ObjectEditResponse::ObjectEditResponse_Cancel || response == ObjectEditResponse::ObjectEditResponse_Final)
 				{
-					int dynObjectId = i->first;
-					if (response == ObjectEditResponse::ObjectEditResponse_Cancel || response == ObjectEditResponse::ObjectEditResponse_Final)
+					std::unordered_map<int, Item::SharedObject>::iterator o = core->getData()->objects.find(dynObjectId);
+					if (o != core->getData()->objects.end())
 					{
-						std::unordered_map<int, Item::SharedObject>::iterator o = core->getData()->objects.find(dynObjectId);
-						if (o != core->getData()->objects.end())
+						if (o->second->comparableStreamDistance < STREAMER_STATIC_DISTANCE_CUTOFF && o->second->originalComparableStreamDistance > STREAMER_STATIC_DISTANCE_CUTOFF)
 						{
-							if (o->second->comparableStreamDistance < STREAMER_STATIC_DISTANCE_CUTOFF && o->second->originalComparableStreamDistance > STREAMER_STATIC_DISTANCE_CUTOFF)
-							{
-								o->second->comparableStreamDistance = o->second->originalComparableStreamDistance;
-								o->second->originalComparableStreamDistance = -1.0f;
-							}
+							o->second->comparableStreamDistance = o->second->originalComparableStreamDistance;
+							o->second->originalComparableStreamDistance = -1.0f;
 						}
 					}
-					for (std::set<AMX*>::iterator a = core->getData()->interfaces.begin(); a != core->getData()->interfaces.end(); ++a)
-					{
-						int amxIndex = 0;
-						cell amxRetVal = 0;
-						if (!amx_FindPublic(*a, "OnPlayerEditDynamicObject", &amxIndex))
-						{
-							amx_Push(*a, amx_ftoc(rotation.z));
-							amx_Push(*a, amx_ftoc(rotation.y));
-							amx_Push(*a, amx_ftoc(rotation.x));
-							amx_Push(*a, amx_ftoc(offset.z));
-							amx_Push(*a, amx_ftoc(offset.y));
-							amx_Push(*a, amx_ftoc(offset.x));
-							amx_Push(*a, static_cast<cell>(response));
-							amx_Push(*a, static_cast<cell>(dynObjectId));
-							amx_Push(*a, static_cast<cell>(playerid));
-							amx_Exec(*a, &amxRetVal, amxIndex);
-							if (amxRetVal)
-							{
-								break;
-							}
-						}
-					}
-					return;
 				}
+				for (std::set<AMX*>::iterator a = core->getData()->interfaces.begin(); a != core->getData()->interfaces.end(); ++a)
+				{
+					int amxIndex = 0;
+					cell amxRetVal = 0;
+					if (!amx_FindPublic(*a, "OnPlayerEditDynamicObject", &amxIndex))
+					{
+						amx_Push(*a, amx_ftoc(rotation.z));
+						amx_Push(*a, amx_ftoc(rotation.y));
+						amx_Push(*a, amx_ftoc(rotation.x));
+						amx_Push(*a, amx_ftoc(offset.z));
+						amx_Push(*a, amx_ftoc(offset.y));
+						amx_Push(*a, amx_ftoc(offset.x));
+						amx_Push(*a, static_cast<cell>(response));
+						amx_Push(*a, static_cast<cell>(dynObjectId));
+						amx_Push(*a, static_cast<cell>(playerid));
+						amx_Exec(*a, &amxRetVal, amxIndex);
+						if (amxRetVal)
+						{
+							break;
+						}
+					}
+				}
+				return;
 			}
 		}
 	}
@@ -378,32 +373,30 @@ class ObjectEvents : public ObjectEventHandler, public Singleton<ObjectEvents>
 		std::unordered_map<int, Player>::iterator p = core->getData()->players.find(playerid);
 		if (p != core->getData()->players.end())
 		{
-			for (std::unordered_map<int, int>::iterator i = p->second.internalObjects.begin(); i != p->second.internalObjects.end(); ++i)
+			std::unordered_map<int, int>::iterator r = p->second.internalObjectsReverse.find(objectid);
+			if (r != p->second.internalObjectsReverse.end())
 			{
-				if (i->second == objectid)
+				int dynObjectId = r->second;
+				for (std::set<AMX*>::iterator a = core->getData()->interfaces.begin(); a != core->getData()->interfaces.end(); ++a)
 				{
-					int dynObjectId = i->first;
-					for (std::set<AMX*>::iterator a = core->getData()->interfaces.begin(); a != core->getData()->interfaces.end(); ++a)
+					int amxIndex = 0;
+					cell amxRetVal = 0;
+					if (!amx_FindPublic(*a, "OnPlayerSelectDynamicObject", &amxIndex))
 					{
-						int amxIndex = 0;
-						cell amxRetVal = 0;
-						if (!amx_FindPublic(*a, "OnPlayerSelectDynamicObject", &amxIndex))
+						amx_Push(*a, amx_ftoc(position.z));
+						amx_Push(*a, amx_ftoc(position.y));
+						amx_Push(*a, amx_ftoc(position.x));
+						amx_Push(*a, static_cast<cell>(model));
+						amx_Push(*a, static_cast<cell>(dynObjectId));
+						amx_Push(*a, static_cast<cell>(playerid));
+						amx_Exec(*a, &amxRetVal, amxIndex);
+						if (amxRetVal)
 						{
-							amx_Push(*a, amx_ftoc(position.z));
-							amx_Push(*a, amx_ftoc(position.y));
-							amx_Push(*a, amx_ftoc(position.x));
-							amx_Push(*a, static_cast<cell>(model));
-							amx_Push(*a, static_cast<cell>(dynObjectId));
-							amx_Push(*a, static_cast<cell>(playerid));
-							amx_Exec(*a, &amxRetVal, amxIndex);
-							if (amxRetVal)
-							{
-								break;
-							}
+							break;
 						}
 					}
-					return;
 				}
+				return;
 			}
 		}
 	}

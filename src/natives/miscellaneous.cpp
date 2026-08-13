@@ -872,12 +872,10 @@ cell AMX_NATIVE_CALL Natives::Streamer_GetItemStreamerID(AMX *amx, cell *params)
 		{
 			case STREAMER_TYPE_OBJECT:
 			{
-				for (std::unordered_map<int, int>::iterator i = p->second.internalObjects.begin(); i != p->second.internalObjects.end(); ++i)
+				std::unordered_map<int, int>::iterator r = p->second.internalObjectsReverse.find(static_cast<int>(params[3]));
+				if (r != p->second.internalObjectsReverse.end())
 				{
-					if (i->second == static_cast<int>(params[3]))
-					{
-						return i->first;
-					}
+					return r->second;
 				}
 				return INVALID_STREAMER_ID;
 			}
@@ -2348,7 +2346,7 @@ cell AMX_NATIVE_CALL Natives::Streamer_SetItemPos(AMX *amx, cell *params)
 					if (i != p->second.internalTextLabels.end())
 					{
 						ompgdk::DeletePlayer3DTextLabel(p->first, i->second);
-						i->second = ompgdk::CreatePlayer3DTextLabel(p->first, t->second->text.c_str(), t->second->color, t->second->position[0], t->second->position[1], t->second->position[2], t->second->drawDistance, t->second->attach ? t->second->attach->player : INVALID_PLAYER_ID, t->second->attach ? t->second->attach->vehicle : INVALID_VEHICLE_ID, t->second->testLOS);
+						i->second = ompgdk::CreatePlayer3DTextLabel(p->first, Utility::getTextLabelTextForLanguage(t->second, p->second.language).c_str(), t->second->color, t->second->position[0], t->second->position[1], t->second->position[2], t->second->drawDistance, t->second->attach ? t->second->attach->player : INVALID_PLAYER_ID, t->second->attach ? t->second->attach->vehicle : INVALID_VEHICLE_ID, t->second->testLOS);
 					}
 				}
 				return 1;
@@ -2613,7 +2611,7 @@ cell AMX_NATIVE_CALL Natives::Streamer_SetPlayerLanguage(AMX *amx, cell *params)
 		for (std::unordered_map<int, int>::iterator i = p->second.internalTextLabels.begin(); i != p->second.internalTextLabels.end(); ++i)
 		{
 			std::unordered_map<int, Item::SharedTextLabel>::iterator t = core->getData()->textLabels.find(i->first);
-			if (t != core->getData()->textLabels.end())
+			if (t != core->getData()->textLabels.end() && !t->second->languageTexts.empty())
 			{
 				ompgdk::UpdatePlayer3DTextLabelText(p->first, i->second, t->second->color, Utility::getTextLabelTextForLanguage(t->second, language).c_str());
 			}
@@ -2625,7 +2623,7 @@ cell AMX_NATIVE_CALL Natives::Streamer_SetPlayerLanguage(AMX *amx, cell *params)
 			{
 				for (std::unordered_map<int, Item::Object::Material>::iterator m = o->second->materials.begin(); m != o->second->materials.end(); ++m)
 				{
-					if (m->second.text)
+					if (m->second.text && !m->second.text->languageTexts.empty())
 					{
 						ompgdk::SetPlayerObjectMaterialText(p->first, i->second, Utility::getMaterialTextForLanguage(m->second.text, language).c_str(), m->first, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
 					}

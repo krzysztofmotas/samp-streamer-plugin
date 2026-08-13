@@ -206,24 +206,40 @@ std::unordered_map<int, Item::SharedTextLabel>::iterator Utility::destroyTextLab
 	return core->getData()->textLabels.erase(t);
 }
 
-const std::string &Utility::getTextLabelTextForLanguage(const Item::SharedTextLabel &textLabel, int language)
+static const std::string &getTextForLanguage(const std::unordered_map<int, std::string> &languageTexts, const std::string &defaultText, int language)
 {
-	std::unordered_map<int, std::string>::const_iterator l = textLabel->languageTexts.find(language);
-	if (l != textLabel->languageTexts.end())
+	std::unordered_map<int, std::string>::const_iterator l = languageTexts.find(language);
+	if (l != languageTexts.end())
 	{
 		return l->second;
 	}
-	return textLabel->text;
+	return defaultText;
+}
+
+const std::string &Utility::getTextLabelTextForLanguage(const Item::SharedTextLabel &textLabel, int language)
+{
+	return getTextForLanguage(textLabel->languageTexts, textLabel->text, language);
 }
 
 const std::string &Utility::getMaterialTextForLanguage(const std::shared_ptr<Item::Object::Material::Text> &materialText, int language)
 {
-	std::unordered_map<int, std::string>::const_iterator l = materialText->languageTexts.find(language);
-	if (l != materialText->languageTexts.end())
+	return getTextForLanguage(materialText->languageTexts, materialText->materialText, language);
+}
+
+void Utility::forEachPlayerWithLanguage(std::unordered_map<int, int> Player::*internalItems, int itemId, int language, const std::function<void(Player &player, int internalId)> &callback)
+{
+	for (std::unordered_map<int, Player>::iterator p = core->getData()->players.begin(); p != core->getData()->players.end(); ++p)
 	{
-		return l->second;
+		if (p->second.language != language)
+		{
+			continue;
+		}
+		std::unordered_map<int, int>::iterator i = (p->second.*internalItems).find(itemId);
+		if (i != (p->second.*internalItems).end())
+		{
+			callback(p->second, i->second);
+		}
 	}
-	return materialText->materialText;
 }
 
 std::size_t Utility::getChunkTickRate(int type, int playerid)

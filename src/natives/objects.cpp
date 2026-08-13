@@ -363,7 +363,7 @@ cell AMX_NATIVE_CALL Natives::AttachDynamicObjectToObject(AMX *amx, cell *params
 						}
 						else if (m->second.text)
 						{
-							ompgdk::SetPlayerObjectMaterialText(p->first, i->second, m->second.text->materialText.c_str(), m->first, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
+							ompgdk::SetPlayerObjectMaterialText(p->first, i->second, Utility::getMaterialTextForLanguage(m->second.text, p->second.language).c_str(), m->first, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
 						}
 					}
 				}
@@ -428,7 +428,7 @@ cell AMX_NATIVE_CALL Natives::AttachDynamicObjectToPlayer(AMX *amx, cell *params
 					}
 					else if (m->second.text)
 					{
-						ompgdk::SetPlayerObjectMaterialText(p->first, i->second, m->second.text->materialText.c_str(), m->first, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
+						ompgdk::SetPlayerObjectMaterialText(p->first, i->second, Utility::getMaterialTextForLanguage(m->second.text, p->second.language).c_str(), m->first, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
 					}
 				}
 			}
@@ -479,7 +479,7 @@ cell AMX_NATIVE_CALL Natives::AttachDynamicObjectToVehicle(AMX *amx, cell *param
 					}
 					else if (m->second.text)
 					{
-						ompgdk::SetPlayerObjectMaterialText(p->first, i->second, m->second.text->materialText.c_str(), m->first, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
+						ompgdk::SetPlayerObjectMaterialText(p->first, i->second, Utility::getMaterialTextForLanguage(m->second.text, p->second.language).c_str(), m->first, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
 					}
 				}
 			}
@@ -712,7 +712,10 @@ cell AMX_NATIVE_CALL Natives::SetDynamicObjectMaterialText(AMX *amx, cell *param
 	if (o != core->getData()->objects.end())
 	{
 		int index = static_cast<int>(params[2]);
-		o->second->materials[index].text = std::make_shared<Item::Object::Material::Text>();
+		if (!o->second->materials[index].text)
+		{
+			o->second->materials[index].text = std::make_shared<Item::Object::Material::Text>();
+		}
 		o->second->materials[index].text->materialText = Utility::convertNativeStringToString(amx, params[3]);
 		o->second->materials[index].text->materialSize = static_cast<int>(params[4]);
 		o->second->materials[index].text->fontFace = Utility::convertNativeStringToString(amx, params[5]);
@@ -752,18 +755,10 @@ cell AMX_NATIVE_CALL Natives::SetDynamicObjectMaterialLangText(AMX *amx, cell *p
 
 		m->second.text->languageTexts[language] = newText;
 
-		for (std::unordered_map<int, Player>::iterator p = core->getData()->players.begin(); p != core->getData()->players.end(); ++p)
+		Utility::forEachPlayerWithLanguage(&Player::internalObjects, o->first, language, [&](Player &player, int internalId)
 		{
-			if (p->second.language != language)
-			{
-				continue;
-			}
-			std::unordered_map<int, int>::iterator i = p->second.internalObjects.find(o->first);
-			if (i != p->second.internalObjects.end())
-			{
-				ompgdk::SetPlayerObjectMaterialText(p->first, i->second, newText.c_str(), index, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
-			}
-		}
+			ompgdk::SetPlayerObjectMaterialText(player.playerId, internalId, newText.c_str(), index, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
+		});
 		return 1;
 	}
 	return 0;
@@ -809,18 +804,10 @@ cell AMX_NATIVE_CALL Natives::RemoveDynamicObjectMaterialLangText(AMX *amx, cell
 		}
 		m->second.text->languageTexts.erase(l);
 
-		for (std::unordered_map<int, Player>::iterator p = core->getData()->players.begin(); p != core->getData()->players.end(); ++p)
+		Utility::forEachPlayerWithLanguage(&Player::internalObjects, o->first, language, [&](Player &player, int internalId)
 		{
-			if (p->second.language != language)
-			{
-				continue;
-			}
-			std::unordered_map<int, int>::iterator i = p->second.internalObjects.find(o->first);
-			if (i != p->second.internalObjects.end())
-			{
-				ompgdk::SetPlayerObjectMaterialText(p->first, i->second, m->second.text->materialText.c_str(), index, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
-			}
-		}
+			ompgdk::SetPlayerObjectMaterialText(player.playerId, internalId, m->second.text->materialText.c_str(), index, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
+		});
 		return 1;
 	}
 	return 0;
@@ -835,12 +822,10 @@ cell AMX_NATIVE_CALL Natives::GetPlayerCameraTargetDynObject(AMX *amx, cell *par
 		int objectid = ompgdk::GetPlayerCameraTargetObject(p->second.playerId);
 		if (objectid != INVALID_OBJECT_ID)
 		{
-			for (std::unordered_map<int, int>::iterator i = p->second.internalObjects.begin(); i != p->second.internalObjects.end(); ++i)
+			std::unordered_map<int, int>::iterator r = p->second.internalObjectsReverse.find(objectid);
+			if (r != p->second.internalObjectsReverse.end())
 			{
-				if (i->second == objectid)
-				{
-					return i->first;
-				}
+				return r->second;
 			}
 		}
 	}

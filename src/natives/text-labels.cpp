@@ -141,18 +141,10 @@ cell AMX_NATIVE_CALL Natives::UpdateDynamic3DTextLabelLangText(AMX *amx, cell *p
 
 		t->second->languageTexts[language] = newText;
 
-		for (std::unordered_map<int, Player>::iterator p = core->getData()->players.begin(); p != core->getData()->players.end(); ++p)
+		Utility::forEachPlayerWithLanguage(&Player::internalTextLabels, t->first, language, [&](Player &player, int internalId)
 		{
-			if (p->second.language != language)
-			{
-				continue;
-			}
-			std::unordered_map<int, int>::iterator i = p->second.internalTextLabels.find(t->first);
-			if (i != p->second.internalTextLabels.end())
-			{
-				ompgdk::UpdatePlayer3DTextLabelText(p->first, i->second, t->second->color, newText.c_str());
-			}
-		}
+			ompgdk::UpdatePlayer3DTextLabelText(player.playerId, internalId, t->second->color, newText.c_str());
+		});
 		return 1;
 	}
 	return 0;
@@ -187,18 +179,10 @@ cell AMX_NATIVE_CALL Natives::RemoveDynamic3DTextLabelLangText(AMX *amx, cell *p
 		}
 		t->second->languageTexts.erase(l);
 
-		for (std::unordered_map<int, Player>::iterator p = core->getData()->players.begin(); p != core->getData()->players.end(); ++p)
+		Utility::forEachPlayerWithLanguage(&Player::internalTextLabels, t->first, language, [&](Player &player, int internalId)
 		{
-			if (p->second.language != language)
-			{
-				continue;
-			}
-			std::unordered_map<int, int>::iterator i = p->second.internalTextLabels.find(t->first);
-			if (i != p->second.internalTextLabels.end())
-			{
-				ompgdk::UpdatePlayer3DTextLabelText(p->first, i->second, t->second->color, t->second->text.c_str());
-			}
-		}
+			ompgdk::UpdatePlayer3DTextLabelText(player.playerId, internalId, t->second->color, t->second->text.c_str());
+		});
 		return 1;
 	}
 	return 0;

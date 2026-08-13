@@ -32,6 +32,7 @@ namespace Utility
 
 	const std::string &getTextLabelTextForLanguage(const Item::SharedTextLabel &textLabel, int language);
 	const std::string &getMaterialTextForLanguage(const std::shared_ptr<Item::Object::Material::Text> &materialText, int language);
+	void forEachPlayerWithLanguage(std::unordered_map<int, int> Player::*internalItems, int itemId, int language, const std::function<void(Player &player, int internalId)> &callback);
 
 	std::size_t getChunkTickRate(int type, int playerid);
 	bool setChunkTickRate(int type, std::size_t value, int playerid);

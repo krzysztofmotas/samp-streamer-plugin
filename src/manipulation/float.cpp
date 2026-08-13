@@ -997,7 +997,7 @@ int Manipulation::setFloatData(AMX *amx, cell *params)
 						if (i != p->second.internalObjects.end())
 						{
 							ompgdk::DestroyPlayerObject(p->first, i->second);
-							i->second = ompgdk::CreatePlayerObject(p->first, o->second->modelId, o->second->position[0], o->second->position[1], o->second->position[2], o->second->rotation[0], o->second->rotation[1], o->second->rotation[2], o->second->drawDistance);
+							p->second.updateInternalObject(i, ompgdk::CreatePlayerObject(p->first, o->second->modelId, o->second->position[0], o->second->position[1], o->second->position[2], o->second->rotation[0], o->second->rotation[1], o->second->rotation[2], o->second->drawDistance));
 							if (o->second->attach)
 							{
 								if (o->second->attach->object != INVALID_STREAMER_ID)
@@ -1029,7 +1029,7 @@ int Manipulation::setFloatData(AMX *amx, cell *params)
 								}
 								else if (m->second.text)
 								{
-									ompgdk::SetPlayerObjectMaterialText(p->first, i->second, m->second.text->materialText.c_str(), m->first, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
+									ompgdk::SetPlayerObjectMaterialText(p->first, i->second, Utility::getMaterialTextForLanguage(m->second.text, p->second.language).c_str(), m->first, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
 								}
 							}
 							if (o->second->noCameraCollision)
@@ -1439,7 +1439,7 @@ int Manipulation::setFloatData(AMX *amx, cell *params)
 						if (i != p->second.internalTextLabels.end())
 						{
 							ompgdk::DeletePlayer3DTextLabel(p->first, i->second);
-							i->second = ompgdk::CreatePlayer3DTextLabel(p->first, t->second->text.c_str(), t->second->color, t->second->position[0], t->second->position[1], t->second->position[2], t->second->drawDistance, t->second->attach ? t->second->attach->player : INVALID_PLAYER_ID, t->second->attach ? t->second->attach->vehicle : INVALID_VEHICLE_ID, t->second->testLOS);
+							i->second = ompgdk::CreatePlayer3DTextLabel(p->first, Utility::getTextLabelTextForLanguage(t->second, p->second.language).c_str(), t->second->color, t->second->position[0], t->second->position[1], t->second->position[2], t->second->drawDistance, t->second->attach ? t->second->attach->player : INVALID_PLAYER_ID, t->second->attach ? t->second->attach->vehicle : INVALID_VEHICLE_ID, t->second->testLOS);
 						}
 					}
 				}

@@ -1074,7 +1074,7 @@ void Streamer::processObjects(Player &player, const std::vector<SharedCell> &cel
 			}
 			else if (m->second.text)
 			{
-				ompgdk::SetPlayerObjectMaterialText(player.playerId, internalId, m->second.text->materialText.c_str(), m->first, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
+				ompgdk::SetPlayerObjectMaterialText(player.playerId, internalId, Utility::getMaterialTextForLanguage(m->second.text, player.language).c_str(), m->first, m->second.text->materialSize, m->second.text->fontFace.c_str(), m->second.text->fontSize, m->second.text->bold, m->second.text->fontColor, m->second.text->backColor, m->second.text->textAlignment);
 			}
 		}
 		if (d->second->noCameraCollision)
@@ -1323,7 +1323,7 @@ void Streamer::processTextLabels(Player &player, const std::vector<SharedCell> &
 			player.currentVisibleTextLabels = player.internalTextLabels.size();
 			break;
 		}
-		int internalId = ompgdk::CreatePlayer3DTextLabel(player.playerId, d->second->text.c_str(), d->second->color, d->second->position[0], d->second->position[1], d->second->position[2], d->second->drawDistance, d->second->attach ? d->second->attach->player : INVALID_PLAYER_ID, d->second->attach ? d->second->attach->vehicle : INVALID_VEHICLE_ID, d->second->testLOS);
+		int internalId = ompgdk::CreatePlayer3DTextLabel(player.playerId, Utility::getTextLabelTextForLanguage(d->second, player.language).c_str(), d->second->color, d->second->position[0], d->second->position[1], d->second->position[2], d->second->drawDistance, d->second->attach ? d->second->attach->player : INVALID_PLAYER_ID, d->second->attach ? d->second->attach->vehicle : INVALID_VEHICLE_ID, d->second->testLOS);
 		if (internalId == INVALID_TEXT_LABEL_ID)
 		{
 			player.currentVisibleTextLabels = player.internalTextLabels.size();

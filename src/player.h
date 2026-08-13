@@ -86,6 +86,13 @@ struct Player
 		return internalObjects.erase(i);
 	}
 
+	inline void updateInternalObject(std::unordered_map<int, int>::iterator i, int newInternalId)
+	{
+		internalObjectsReverse.erase(i->second);
+		i->second = newInternalId;
+		internalObjectsReverse.insert(std::make_pair(newInternalId, i->first));
+	}
+
 	std::deque<std::pair<int, int>> pendingMaterials;
 	float networkPacketLoss = 0.0f;
 	unsigned networkPrevBytesSent = 0;
