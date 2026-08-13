@@ -1,25 +1,3 @@
-/*
-    About: Helpers that create/update dynamic 3D text labels and object
-    material texts with a translation for every language loaded in zlang, in
-    one call, by wrapping the streamer's *LangText natives
-    (UpdateDynamic3DTextLabelLangText, SetDynamicObjectMaterialLangText).
-
-    zlang's Lang: tag is already a small integer slot index, so it is reused
-    directly as the streamer "languageid" parameter - no separate mapping
-    table is needed.
-
-    This file does not touch player language state at all. You are
-    responsible for keeping the streamer's per-player language in sync
-    yourself: call Streamer_SetPlayerLanguage(playerid, _:lang) whenever a
-    player's language is set (on connect, and on every change via
-    Lang_SetPlayerLang / Lang_SetPlayerLangByCode / Lang_SetPlayerLangByName), e.g.:
-
-        new Lang:lang = Lang_SetPlayerLangByCode(playerid, "pl");
-        Streamer_SetPlayerLanguage(playerid, _:lang);
-
-    Usage: include this after both streamer.inc and zlang.inc.
-*/
-
 #if !defined _streamer_included
     #error Please include streamer.inc before streamer-zlang-bridge
 #endif
@@ -33,13 +11,57 @@
 #endif
 #define _streamer_zlang_bridge_included
 
-/*
-    Creation / setup helpers
+stock StreamerZLang_SetPlayerLang(playerid, Lang:lang)
+{
+    new result = Lang_SetPlayerLang(playerid, lang);
+    if (result)
+    {
+        Streamer_SetPlayerLanguage(playerid, _:lang);
+    }
+    return result;
+}
 
-    These pull the translated string for every loaded zlang language out of
-    "key" (a zlang var name) and push it into the streamer item as a
-    language variant, in addition to the default text.
-*/
+#if defined _ALS_Lang_SetPlayerLang
+    #undef Lang_SetPlayerLang
+#else
+    #define _ALS_Lang_SetPlayerLang
+#endif
+#define Lang_SetPlayerLang StreamerZLang_SetPlayerLang
+
+stock Lang:StreamerZLang_SetPlayerLangByCode(playerid, const code[])
+{
+    new Lang:lang = Lang_SetPlayerLangByCode(playerid, code);
+    if (lang != INVALID_LANG_ID)
+    {
+        Streamer_SetPlayerLanguage(playerid, _:lang);
+    }
+    return lang;
+}
+
+#if defined _ALS_Lang_SetPlayerLangByCode
+    #undef Lang_SetPlayerLangByCode
+#else
+    #define _ALS_Lang_SetPlayerLangByCode
+#endif
+#define Lang_SetPlayerLangByCode StreamerZLang_SetPlayerLangByCode
+
+stock Lang:StreamerZLang_SetPlayerLangByName(playerid, const name[])
+{
+    new Lang:lang = Lang_SetPlayerLangByName(playerid, name);
+    if (lang != INVALID_LANG_ID)
+    {
+        Streamer_SetPlayerLanguage(playerid, _:lang);
+    }
+    return lang;
+}
+
+#if defined _ALS_Lang_SetPlayerLangByName
+    #undef Lang_SetPlayerLangByName
+#else
+    #define _ALS_Lang_SetPlayerLangByName
+#endif
+#define Lang_SetPlayerLangByName StreamerZLang_SetPlayerLangByName
+
 
 stock UpdateDynamic3DTextLabelLangTexts(STREAMER_TAG_3D_TEXT_LABEL:label, const key[])
 {
@@ -53,6 +75,41 @@ stock UpdateDynamic3DTextLabelLangTexts(STREAMER_TAG_3D_TEXT_LABEL:label, const 
         }
         Lang_GetText(lang, key, text);
         UpdateDynamic3DTextLabelLangText(label, _:lang, text);
+    }
+    return 1;
+}
+
+stock UpdateDynamic3DTextLabelLangTextf(STREAMER_TAG_3D_TEXT_LABEL:label, color, const key[], {Float, _}:...)
+{
+    new
+        template[MAX_LANG_MFORMAT_STRING],
+        text[MAX_LANG_MFORMAT_STRING];
+
+    for (new Lang:lang; lang < Lang:MAX_LANGS; lang++)
+    {
+        if (!Lang_IsValid(lang))
+        {
+            continue;
+        }
+
+        Lang_GetText(lang, key, template);
+        if (numargs() > 3)
+        {
+            va_format(text, _, template, va_start<3>);
+        }
+        else
+        {
+            strcopy(text, template);
+        }
+
+        if (lang == Lang_GetDefaultLang())
+        {
+            UpdateDynamic3DTextLabelText(label, color, text);
+        }
+        else
+        {
+            UpdateDynamic3DTextLabelLangText(label, _:lang, text);
+        }
     }
     return 1;
 }
