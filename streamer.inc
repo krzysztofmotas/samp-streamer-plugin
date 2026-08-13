@@ -341,7 +341,7 @@ native DestroyDynamic3DTextLabel(STREAMER_TAG_3D_TEXT_LABEL:id);
 native IsValidDynamic3DTextLabel(STREAMER_TAG_3D_TEXT_LABEL:id);
 native GetDynamic3DTextLabelText(STREAMER_TAG_3D_TEXT_LABEL:id, text[], maxtext = sizeof text);
 native UpdateDynamic3DTextLabelText(STREAMER_TAG_3D_TEXT_LABEL:id, color, const text[]);
-native SetDynamic3DTextLabelLangText(STREAMER_TAG_3D_TEXT_LABEL:id, languageid, const text[]);
+native UpdateDynamic3DTextLabelLangText(STREAMER_TAG_3D_TEXT_LABEL:id, languageid, const text[]);
 native GetDynamic3DTextLabelLangText(STREAMER_TAG_3D_TEXT_LABEL:id, languageid, text[], maxtext = sizeof text);
 native RemoveDynamic3DTextLabelLangText(STREAMER_TAG_3D_TEXT_LABEL:id, languageid);
 

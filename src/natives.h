@@ -169,7 +169,7 @@ namespace Natives
 	cell AMX_NATIVE_CALL IsValidDynamic3DTextLabel(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL GetDynamic3DTextLabelText(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL UpdateDynamic3DTextLabelText(AMX *amx, cell *params);
-	cell AMX_NATIVE_CALL SetDynamic3DTextLabelLangText(AMX *amx, cell *params);
+	cell AMX_NATIVE_CALL UpdateDynamic3DTextLabelLangText(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL GetDynamic3DTextLabelLangText(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL RemoveDynamic3DTextLabelLangText(AMX *amx, cell *params);
 	// Areas

@@ -169,7 +169,7 @@ AMX_NATIVE_INFO natives[] =
 	{ "IsValidDynamic3DTextLabel", Natives::IsValidDynamic3DTextLabel },
 	{ "GetDynamic3DTextLabelText", Natives::GetDynamic3DTextLabelText },
 	{ "UpdateDynamic3DTextLabelText", Natives::UpdateDynamic3DTextLabelText },
-	{ "SetDynamic3DTextLabelLangText", Natives::SetDynamic3DTextLabelLangText },
+	{ "UpdateDynamic3DTextLabelLangText", Natives::UpdateDynamic3DTextLabelLangText },
 	{ "GetDynamic3DTextLabelLangText", Natives::GetDynamic3DTextLabelLangText },
 	{ "RemoveDynamic3DTextLabelLangText", Natives::RemoveDynamic3DTextLabelLangText },
 	// Areas

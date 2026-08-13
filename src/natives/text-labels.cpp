@@ -130,7 +130,7 @@ cell AMX_NATIVE_CALL Natives::UpdateDynamic3DTextLabelText(AMX *amx, cell *param
 	return 0;
 }
 
-cell AMX_NATIVE_CALL Natives::SetDynamic3DTextLabelLangText(AMX *amx, cell *params)
+cell AMX_NATIVE_CALL Natives::UpdateDynamic3DTextLabelLangText(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(3);
 	std::unordered_map<int, Item::SharedTextLabel>::iterator t = core->getData()->textLabels.find(static_cast<int>(params[1]));
