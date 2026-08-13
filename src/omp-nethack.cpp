@@ -23,112 +23,110 @@
 
 static int GetObjectStreamerId(int playerid, int objectid)
 {
-    std::unordered_map<int, Player>::iterator p = core->getData()->players.find(playerid);
-    if (p != core->getData()->players.end())
-    {
-        for (std::unordered_map<int, int>::iterator i = p->second.internalObjects.begin(); i != p->second.internalObjects.end(); ++i)
-        {
-            if (i->second == objectid)
-            {
-                return i->first;
-            }
-        }
-    }
-    return INVALID_STREAMER_ID;
+	std::unordered_map<int, Player>::iterator p = core->getData()->players.find(playerid);
+	if (p != core->getData()->players.end())
+	{
+		std::unordered_map<int, int>::iterator i = p->second.internalObjectsReverse.find(objectid);
+		if (i != p->second.internalObjectsReverse.end())
+		{
+			return i->second;
+		}
+	}
+	return INVALID_STREAMER_ID;
 }
 
 static int GetObjectInternalId(int playerid, int streamerid)
 {
-    std::unordered_map<int, Player>::iterator p = core->getData()->players.find(playerid);
-    if (p != core->getData()->players.end())
-    {
-        std::unordered_map<int, int>::iterator i = p->second.internalObjects.find(streamerid);
-        if (i != p->second.internalObjects.end())
-        {
-            return i->second;
-        }
-    }
-    return INVALID_OBJECT_ID;
+	std::unordered_map<int, Player>::iterator p = core->getData()->players.find(playerid);
+	if (p != core->getData()->players.end())
+	{
+		std::unordered_map<int, int>::iterator i = p->second.internalObjects.find(streamerid);
+		if (i != p->second.internalObjects.end())
+		{
+			return i->second;
+		}
+	}
+	return INVALID_OBJECT_ID;
 }
 
 void OMPNetHack::Process(IPlayerPool* players, IPlayer* peer, NetworkBitStream& bs)
 {
-    if(!peer)
-    {
-        return;
-    }
+	if (!peer)
+	{
+		return;
+	}
 
-    uint16_t playerid;
-    bs.SetReadOffset(8);
-    bs.readUINT16(playerid);
+	uint16_t playerid;
+	bs.SetReadOffset(8);
+	bs.readUINT16(playerid);
 
-    IPlayer* player = players->get(playerid);
-    if(!player)
-    {
-        return;
-    }
+	IPlayer* player = players->get(playerid);
+	if (!player)
+	{
+		return;
+	}
 
-    PlayerSurfingData surfingData = player->getSurfingData();
-    if(surfingData.type != PlayerSurfingData::Type::PlayerObject)
-    {
-        return;
-    }
+	PlayerSurfingData surfingData = player->getSurfingData();
+	if (surfingData.type != PlayerSurfingData::Type::PlayerObject)
+	{
+		return;
+	}
 
-    int object_streamer_id = GetObjectStreamerId(playerid, surfingData.ID);
-    if(object_streamer_id == INVALID_STREAMER_ID)
-    {
-        return;
-    }
+	int objectStreamerId = GetObjectStreamerId(playerid, surfingData.ID);
+	if (objectStreamerId == INVALID_STREAMER_ID)
+	{
+		return;
+	}
 
-    int player_object_id = GetObjectInternalId(peer->getID(), object_streamer_id);
-    if(player_object_id == INVALID_OBJECT_ID)
-    {
-        return;
-    }
+	int playerObjectId = GetObjectInternalId(peer->getID(), objectStreamerId);
+	if (playerObjectId == INVALID_OBJECT_ID)
+	{
+		return;
+	}
 
-    bool conditionalRead;
-    uint16_t AnimationID;
-    uint16_t AnimationFlags;
+	bool conditionalRead;
+	uint16_t animationId;
+	uint16_t animationFlags;
 
-    bs.readBIT(conditionalRead);
-    if(conditionalRead)
-    {
-        bs.IgnoreBits(16);
-    }
-    bs.readBIT(conditionalRead);
-    if(conditionalRead)
-    {
-        bs.IgnoreBits(16);
-    }
+	bs.readBIT(conditionalRead);
+	if (conditionalRead)
+	{
+		bs.IgnoreBits(16);
+	}
+	bs.readBIT(conditionalRead);
+	if (conditionalRead)
+	{
+		bs.IgnoreBits(16);
+	}
 
-    bs.IgnoreBits(16 + (32*3) + ( 4 + 16*3 ) + 8 + 8 + 8);
-    
-    float magnitude;
-    if(bs.readFLOAT(magnitude) && magnitude > 0.00001f)
-    {
-        bs.IgnoreBits(3*16);
-    }
-    
-    int surfingDataWriteOffset = bs.GetReadOffset();
+	bs.IgnoreBits(16 + (32 * 3) + (4 + 16 * 3) + 8 + 8 + 8);
 
-    bs.IgnoreBits(1);
+	float magnitude;
+	if (bs.readFLOAT(magnitude) && magnitude > 0.00001f)
+	{
+		bs.IgnoreBits(3 * 16);
+	}
 
-    bs.readBIT(conditionalRead);
-    if(conditionalRead)
-    {
-        bs.readUINT16(AnimationID);
-        bs.readUINT16(AnimationFlags);
-    }
+	int surfingDataWriteOffset = bs.GetReadOffset();
 
-    bs.SetWriteOffset(surfingDataWriteOffset);
-    bs.writeBIT(true);
-    bs.writeUINT16(player_object_id + VEHICLE_POOL_SIZE);
-    bs.writeVEC3(surfingData.offset);
-    bs.writeBIT(conditionalRead);
-    if(conditionalRead)
-    {
-        bs.writeUINT16(AnimationID);
-        bs.writeUINT16(AnimationFlags);
-    }
-    return;
+	bs.IgnoreBits(1);
+
+	bs.readBIT(conditionalRead);
+	if (conditionalRead)
+	{
+		bs.readUINT16(animationId);
+		bs.readUINT16(animationFlags);
+	}
+
+	bs.SetWriteOffset(surfingDataWriteOffset);
+	bs.writeBIT(true);
+	bs.writeUINT16(playerObjectId + VEHICLE_POOL_SIZE);
+	bs.writeVEC3(surfingData.offset);
+	bs.writeBIT(conditionalRead);
+	if (conditionalRead)
+	{
+		bs.writeUINT16(animationId);
+		bs.writeUINT16(animationFlags);
+	}
+	return;
 }

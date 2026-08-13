@@ -349,7 +349,7 @@ void ChunkStreamer::streamObjects(Player &player, bool automatic)
 							streamOutCallbacks.push_back(std::make_tuple(STREAMER_TYPE_OBJECT, *r, player.playerId));
 						}
 					}
-					player.internalObjects.erase(i);
+					player.eraseInternalObject(i);
 				}
 				r = player.removedObjects.erase(r);
 			}
@@ -399,7 +399,7 @@ void ChunkStreamer::streamObjects(Player &player, bool automatic)
 								{
 									streamOutCallbacks.push_back(std::make_tuple(STREAMER_TYPE_OBJECT, std::get<0>(e->second), player.playerId));
 								}
-								player.internalObjects.erase(j);
+								player.eraseInternalObject(j);
 							}
 							if (std::get<1>(e->second)->cell)
 							{
@@ -452,7 +452,7 @@ void ChunkStreamer::streamObjects(Player &player, bool automatic)
 				{
 					ompgdk::SetPlayerObjectNoCameraCol(player.playerId, internalId);
 				}
-				player.internalObjects.insert(std::make_pair(std::get<0>(d->second), internalId));
+				player.insertInternalObject(std::get<0>(d->second), internalId);
 				if (std::get<1>(d->second)->cell)
 				{
 					player.visibleCell->objects.insert(std::make_pair(std::get<0>(d->second), std::get<1>(d->second)));

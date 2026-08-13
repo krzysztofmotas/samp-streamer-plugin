@@ -123,7 +123,7 @@ std::unordered_map<int, Item::SharedObject>::iterator Utility::destroyObject(std
 		if (i != p->second.internalObjects.end())
 		{
 			ompgdk::DestroyPlayerObject(p->first, i->second);
-			p->second.internalObjects.erase(i);
+			p->second.eraseInternalObject(i);
 		}
 		std::unordered_set<int>::iterator r = p->second.removedObjects.find(o->first);
 		if (r != p->second.removedObjects.end())

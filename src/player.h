@@ -71,7 +71,20 @@ struct Player
 	std::unordered_set<int> internalAreas;
 	std::unordered_map<int, int> internalMapIcons;
 	std::unordered_map<int, int> internalObjects;
+	std::unordered_map<int, int> internalObjectsReverse;
 	std::unordered_map<int, int> internalTextLabels;
+
+	inline void insertInternalObject(int streamerId, int internalId)
+	{
+		internalObjects.insert(std::make_pair(streamerId, internalId));
+		internalObjectsReverse.insert(std::make_pair(internalId, streamerId));
+	}
+
+	inline std::unordered_map<int, int>::iterator eraseInternalObject(std::unordered_map<int, int>::iterator i)
+	{
+		internalObjectsReverse.erase(i->second);
+		return internalObjects.erase(i);
+	}
 
 	std::deque<std::pair<int, int>> pendingMaterials;
 	float networkPacketLoss = 0.0f;

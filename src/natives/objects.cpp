@@ -575,7 +575,7 @@ cell AMX_NATIVE_CALL Natives::RemoveDynamicObjectMaterial(AMX *amx, cell *params
 				if (i != p->second.internalObjects.end())
 				{
 					ompgdk::DestroyPlayerObject(p->first, i->second);
-					p->second.internalObjects.erase(i);
+					p->second.eraseInternalObject(i);
 					core->getStreamer()->startManualUpdate(p->second, STREAMER_TYPE_OBJECT);
 				}
 			}
@@ -669,7 +669,7 @@ cell AMX_NATIVE_CALL Natives::RemoveDynamicObjectMaterialText(AMX *amx, cell *pa
 				if (i != p->second.internalObjects.end())
 				{
 					ompgdk::DestroyPlayerObject(p->first, i->second);
-					p->second.internalObjects.erase(i);
+					p->second.eraseInternalObject(i);
 					core->getStreamer()->startManualUpdate(p->second, STREAMER_TYPE_OBJECT);
 				}
 			}

@@ -16,8 +16,10 @@
 
 #ifndef OMPNETHACK_H
 #define OMPNETHACK_H
+
 namespace OMPNetHack
 {
-    void Process(IPlayerPool* players, IPlayer* peer, NetworkBitStream& bs);
+	void Process(IPlayerPool* players, IPlayer* peer, NetworkBitStream& bs);
 }
+
 #endif

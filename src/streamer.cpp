@@ -982,7 +982,7 @@ void Streamer::processObjects(Player &player, const std::vector<SharedCell> &cel
 					{
 						streamOutCallbacks.push_back(std::make_tuple(STREAMER_TYPE_OBJECT, o->first, player.playerId));
 					}
-					player.internalObjects.erase(i);
+					player.eraseInternalObject(i);
 				}
 			}
 		}
@@ -1022,7 +1022,7 @@ void Streamer::processObjects(Player &player, const std::vector<SharedCell> &cel
 						{
 							streamOutCallbacks.push_back(std::make_tuple(STREAMER_TYPE_OBJECT, e->second->objectId, player.playerId));
 						}
-						player.internalObjects.erase(j);
+						player.eraseInternalObject(j);
 					}
 					if (e->second->cell)
 					{
@@ -1081,7 +1081,7 @@ void Streamer::processObjects(Player &player, const std::vector<SharedCell> &cel
 		{
 			ompgdk::SetPlayerObjectNoCameraCol(player.playerId, internalId);
 		}
-		player.internalObjects.insert(std::make_pair(d->second->objectId, internalId));
+		player.insertInternalObject(d->second->objectId, internalId);
 		if (d->second->cell)
 		{
 			player.visibleCell->objects.insert(std::make_pair(d->second->objectId, d->second));
@@ -1389,7 +1389,7 @@ void Streamer::processMovingObjects()
 				objectMoveCallbacks.push_back((*o)->objectId);
 				objectFinishedMoving = true;
 			}
-			if ((*o)->cell)
+			if ((*o)->cell && core->getGrid()->hasCellChanged((*o)->cell, Eigen::Vector2f((*o)->position[0], (*o)->position[1])))
 			{
 				core->getGrid()->removeObject(*o, true);
 			}

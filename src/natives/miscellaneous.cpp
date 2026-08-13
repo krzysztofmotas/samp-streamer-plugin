@@ -1095,7 +1095,7 @@ cell AMX_NATIVE_CALL Natives::Streamer_DestroyAllVisibleItems(AMX *amx, cell *pa
 					if (serverWide || (o != core->getData()->objects.end() && o->second->amx == amx))
 					{
 						ompgdk::DestroyPlayerObject(p->first, i->second);
-						i = p->second.internalObjects.erase(i);
+						i = p->second.eraseInternalObject(i);
 					}
 					else
 					{
