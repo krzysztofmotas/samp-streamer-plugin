@@ -129,6 +129,21 @@ stock STREAMER_TAG_3D_TEXT_LABEL:CreateDynamic3DTextLabelLang(const key[], color
     return label;
 }
 
+stock STREAMER_TAG_3D_TEXT_LABEL:CreateDynamic3DTextLabelLangEx(const key[], color, Float:x, Float:y, Float:z, Float:drawdistance, attachedplayer = INVALID_PLAYER_ID, attachedvehicle = INVALID_VEHICLE_ID, testlos = 0, Float:streamdistance = STREAMER_3D_TEXT_LABEL_SD, const worlds[] = { -1 }, const interiors[] = { -1 }, const players[] = { -1 }, const STREAMER_TAG_AREA:areas[] = { STREAMER_TAG_AREA:-1 }, priority = 0, maxworlds = sizeof worlds, maxinteriors = sizeof interiors, maxplayers = sizeof players, maxareas = sizeof areas)
+{
+    new text[MAX_LANG_MFORMAT_STRING];
+    Lang_GetText(Lang_GetDefaultLang(), key, text);
+
+    new STREAMER_TAG_3D_TEXT_LABEL:label = CreateDynamic3DTextLabelEx(text, color, x, y, z, drawdistance, attachedplayer, attachedvehicle, testlos, streamdistance, worlds, interiors, players, areas, priority, maxworlds, maxinteriors, maxplayers, maxareas);
+    if (_:label == INVALID_STREAMER_ID)
+    {
+        return label;
+    }
+
+    UpdateDynamic3DTextLabelLangTexts(label, key);
+    return label;
+}
+
 stock SetDynamicObjectMaterialTextLang(STREAMER_TAG_OBJECT:objectid, materialindex, const key[], materialsize = OBJECT_MATERIAL_SIZE_256x128, const fontface[] = "Arial", fontsize = 24, bold = 1, fontcolor = 0xFFFFFFFF, backcolor = 0, textalignment = 0)
 {
     new text[MAX_LANG_MFORMAT_STRING];
