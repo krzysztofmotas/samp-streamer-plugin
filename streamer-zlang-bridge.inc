@@ -63,6 +63,15 @@ stock Lang:StreamerZLang_SetPlayerLangByName(playerid, const name[])
 #define Lang_SetPlayerLangByName StreamerZLang_SetPlayerLangByName
 
 
+stock UpdateDynamic3DTextLabelTextForLang(STREAMER_TAG_3D_TEXT_LABEL:label, color, Lang:lang, const text[])
+{
+    if (lang == Lang_GetDefaultLang())
+    {
+        return UpdateDynamic3DTextLabelText(label, color, text);
+    }
+    return UpdateDynamic3DTextLabelLangText(label, _:lang, text);
+}
+
 stock UpdateDynamic3DTextLabelLangTexts(STREAMER_TAG_3D_TEXT_LABEL:label, const key[])
 {
     new text[MAX_LANG_MFORMAT_STRING];
@@ -102,14 +111,7 @@ stock UpdateDynamic3DTextLabelLangTextf(STREAMER_TAG_3D_TEXT_LABEL:label, color,
             strcopy(text, template);
         }
 
-        if (lang == Lang_GetDefaultLang())
-        {
-            UpdateDynamic3DTextLabelText(label, color, text);
-        }
-        else
-        {
-            UpdateDynamic3DTextLabelLangText(label, _:lang, text);
-        }
+        UpdateDynamic3DTextLabelTextForLang(label, color, lang, text);
     }
     return 1;
 }
