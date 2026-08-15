@@ -139,6 +139,12 @@ cell AMX_NATIVE_CALL Natives::UpdateDynamic3DTextLabelLangText(AMX *amx, cell *p
 		int language = static_cast<int>(params[2]);
 		std::string newText = Utility::convertNativeStringToString(amx, params[3]);
 
+		std::unordered_map<int, std::string>::iterator l = t->second->languageTexts.find(language);
+		if (l != t->second->languageTexts.end() && l->second == newText)
+		{
+			return 1;
+		}
+
 		t->second->languageTexts[language] = newText;
 
 		Utility::forEachPlayerWithLanguage(&Player::internalTextLabels, t->first, language, [&](Player &player, int internalId)
