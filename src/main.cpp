@@ -15,6 +15,7 @@
  */
 
 #include "main.h"
+#include "git_version.h"
 #include "Server/Components/Pawn/pawn.hpp"
 
 #include "core.h"
@@ -289,7 +290,7 @@ class OmpStreamerComponent final : public IComponent, public CoreEventHandler, p
 		players = &c->getPlayers();
 		core->setPlayers(players);
 		core->setOmpCore(c);
-		c->printLn("\n\n ***Streamer Plugin v%s by Incognito loaded ***", PLUGIN_VERSION);
+		c->printLn("\n\n ***Streamer Plugin v%s (%s) by Incognito loaded ***", PLUGIN_VERSION, GIT_COMMIT_HASH);
 	}
 
 	void onInit(IComponentList* components) override 
@@ -352,7 +353,7 @@ class OmpStreamerComponent final : public IComponent, public CoreEventHandler, p
 		{
 			pawnComponent = nullptr;
 			pAMXFunctions = nullptr;
-			omp_core->printLn("\n\n*** Streamer Plugin v%s by Incognito unloaded ***\n\n", PLUGIN_VERSION);
+			omp_core->printLn("\n\n*** Streamer Plugin v%s (%s) by Incognito unloaded ***\n\n", PLUGIN_VERSION, GIT_COMMIT_HASH);
 			core.reset();
 		}
 	}

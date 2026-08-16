@@ -4,6 +4,27 @@ project(streamer)
 set(PLUGIN_VERSION "2.9.6")
 set(CMAKE_CXX_STANDARD 17)
 
+find_package(Git QUIET)
+if(GIT_EXECUTABLE)
+	execute_process(
+		COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+		OUTPUT_VARIABLE GIT_COMMIT_HASH
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+		ERROR_QUIET
+	)
+endif()
+if(NOT GIT_COMMIT_HASH)
+	set(GIT_COMMIT_HASH "unknown")
+endif()
+
+configure_file(
+	${PROJECT_SOURCE_DIR}/src/git_version.h.in
+	${PROJECT_BINARY_DIR}/generated/git_version.h
+	@ONLY
+)
+include_directories(${PROJECT_BINARY_DIR}/generated)
+
 if (MSVC)
     add_definitions("/MP")
 endif()

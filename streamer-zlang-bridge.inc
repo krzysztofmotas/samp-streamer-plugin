@@ -11,57 +11,6 @@
 #endif
 #define _streamer_zlang_bridge_included
 
-stock StreamerZLang_SetPlayerLang(playerid, Lang:lang)
-{
-    new result = Lang_SetPlayerLang(playerid, lang);
-    if (result)
-    {
-        Streamer_SetPlayerLang(playerid, _:lang);
-    }
-    return result;
-}
-
-#if defined _ALS_Lang_SetPlayerLang
-    #undef Lang_SetPlayerLang
-#else
-    #define _ALS_Lang_SetPlayerLang
-#endif
-#define Lang_SetPlayerLang StreamerZLang_SetPlayerLang
-
-stock Lang:StreamerZLang_SetPlayerLangByCode(playerid, const code[])
-{
-    new Lang:lang = Lang_SetPlayerLangByCode(playerid, code);
-    if (lang != INVALID_LANG_ID)
-    {
-        Streamer_SetPlayerLang(playerid, _:lang);
-    }
-    return lang;
-}
-
-#if defined _ALS_Lang_SetPlayerLangByCode
-    #undef Lang_SetPlayerLangByCode
-#else
-    #define _ALS_Lang_SetPlayerLangByCode
-#endif
-#define Lang_SetPlayerLangByCode StreamerZLang_SetPlayerLangByCode
-
-stock Lang:StreamerZLang_SetPlayerLangByName(playerid, const name[])
-{
-    new Lang:lang = Lang_SetPlayerLangByName(playerid, name);
-    if (lang != INVALID_LANG_ID)
-    {
-        Streamer_SetPlayerLang(playerid, _:lang);
-    }
-    return lang;
-}
-
-#if defined _ALS_Lang_SetPlayerLangByName
-    #undef Lang_SetPlayerLangByName
-#else
-    #define _ALS_Lang_SetPlayerLangByName
-#endif
-#define Lang_SetPlayerLangByName StreamerZLang_SetPlayerLangByName
-
 
 stock UpdateDynamic3DTextLabelTextForLang(STREAMER_TAG_3D_TEXT_LABEL:label, color, Lang:lang, const text[])
 {
