@@ -17,30 +17,51 @@
 #ifndef OBJECT_UNRELIABLE_UPDATES_H
 #define OBJECT_UNRELIABLE_UPDATES_H
 
+#include <chrono>
 #include <cstdint>
+#include <memory>
+#include <unordered_map>
 #include <vector>
 
+#include "object-update-repair.h"
+
 struct Player;
+namespace Item
+{
+	struct Object;
+}
 
 // Resends omp's SetObjectPosition/SetObjectRotation RPCs for objects updated many times per second
 // as unreliable packets. A lost update is superseded by the next one anyway, while a reliable one
 // is resent late, blocks the ordered channel and lowers RakNet's bandwidth estimate.
+// Idle properties are repaired reliably after 200ms and once more a second later. This limits,
+// but does not remove, the chance of a stale state: vanilla clients cannot reject late raw RPCs.
 class ObjectUnreliableUpdates
 {
 public:
 	ObjectUnreliableUpdates();
 
 	void begin(int playerId);
-	void finish(Player &player);
+	void finish(Player &player, int objectId, bool rotation);
+	void settle();
+	void removePlayer(int playerId);
 
 	bool onObjectUpdate(IPlayer *peer, NetworkBitStream &bs, int rpcId);
 
 private:
+	struct Pending
+	{
+		std::weak_ptr<Item::Object> object;
+		int internalId = INVALID_OBJECT_ID;
+		ObjectUpdateRepair repair;
+	};
+
 	int capturePlayerId;
 	IPlayer *capturePeer;
 	int captureRpcId;
 	std::vector<uint8_t> data;
 	int bits;
+	std::unordered_map<uint64_t, Pending> pending;
 };
 
 // Lives in the omp component rather than in Core, because network dispatchers keep these
