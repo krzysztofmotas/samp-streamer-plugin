@@ -34,8 +34,8 @@ namespace Item
 // Resends omp's SetObjectPosition/SetObjectRotation RPCs for objects updated many times per second
 // as unreliable packets. A lost update is superseded by the next one anyway, while a reliable one
 // is resent late, blocks the ordered channel and lowers RakNet's bandwidth estimate.
-// Idle properties are repaired reliably after 200ms and once more a second later. This limits,
-// but does not remove, the chance of a stale state: vanilla clients cannot reject late raw RPCs.
+// An idle property is resent once reliably, 200ms after its last update, so a lost or dropped
+// final update cannot leave the client showing a stale position.
 class ObjectUnreliableUpdates
 {
 public:

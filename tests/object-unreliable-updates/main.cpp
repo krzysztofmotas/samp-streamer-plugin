@@ -54,11 +54,8 @@ int main()
         for (int ms = 0; ms <= 1000; ms += 50) schedule.updated(true, t + milliseconds(ms));
         require(schedule.ready(false, t + milliseconds(200)), "rotation starved position repair");
         require(!schedule.ready(true, t + milliseconds(1100)), "rotation repaired while active");
-        schedule.sent(false, t + milliseconds(200));
-        require(!schedule.ready(false, t + milliseconds(1199)), "repair rate exceeded");
-        require(schedule.ready(false, t + milliseconds(1200)), "second repair missing");
-        schedule.sent(false, t + milliseconds(1200));
-        require(!schedule.ready(false, t + seconds(10)), "repairs must stop after the second one");
+        schedule.sent(false);
+        require(!schedule.ready(false, t + seconds(10)), "idle property repaired more than once");
         schedule.updated(false, t + milliseconds(1250));
         require(!schedule.ready(false, t + milliseconds(1300)), "new animation must defer repair");
         require(schedule.ready(false, t + milliseconds(1450)), "new animation never settles");
@@ -87,16 +84,9 @@ int main()
             std::memcpy(&x, message.data.data() + 2, sizeof(x));
             require(x == 123, "repair did not read live omp state");
             require(f.state.data.players[1].networkBudget.allowance < 10000, "repair not charged to budget");
-            // Simulate a stale unreliable update arriving after the first reliable correction.
-            float clientX = -10;
             std::this_thread::sleep_for(milliseconds(1020));
             f.updates.settle();
-            require(f.network.reliable.size() == 2, "late packet can leave client permanently stale");
-            std::memcpy(&clientX, f.network.reliable.back().data.data() + 2, sizeof(clientX));
-            require(clientX == 123, "second correction failed");
-            std::this_thread::sleep_for(milliseconds(1020));
-            f.updates.settle();
-            require(f.network.reliable.size() == 2, "idle object repaired more than twice");
+            require(f.network.reliable.size() == 1, "idle object repaired more than once");
         }
         {
             Fixture f;

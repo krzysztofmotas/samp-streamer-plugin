@@ -21,19 +21,17 @@
 #include <chrono>
 
 // Independent deadlines: a rotating object must not starve a position repair (or vice versa).
-// The second repair covers an unreliable packet delayed past the first one. Later arrivals stay
-// unrepaired, because repairing an idle object forever costs more than the feature saves.
+// One repair is enough. Unreliable and reliable messages share RakNet's HIGH_PRIORITY send queue,
+// so the repair leaves after every earlier update, and the client handles packets in arrival order
+// (a reliable ordered one can only be held back, never delivered early).
 class ObjectUpdateRepair
 {
 public:
 	using Clock = std::chrono::steady_clock;
 
-	static constexpr int MAX_REPAIRS = 2;
-
 	void updated(bool rotation, Clock::time_point now)
 	{
 		active[rotation] = true;
-		repairs[rotation] = 0;
 		due[rotation] = now + std::chrono::milliseconds(200);
 	}
 
@@ -42,16 +40,9 @@ public:
 		return active[rotation] && now >= due[rotation];
 	}
 
-	void sent(bool rotation, Clock::time_point now)
+	void sent(bool rotation)
 	{
-		if (++repairs[rotation] >= MAX_REPAIRS)
-		{
-			active[rotation] = false;
-		}
-		else
-		{
-			due[rotation] = now + std::chrono::seconds(1);
-		}
+		active[rotation] = false;
 	}
 
 	void defer(Clock::time_point now)
@@ -72,7 +63,6 @@ public:
 
 private:
 	std::array<bool, 2> active{};
-	std::array<int, 2> repairs{};
 	std::array<Clock::time_point, 2> due{};
 };
 

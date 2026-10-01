@@ -148,7 +148,7 @@ void ObjectUnreliableUpdates::settle()
 			if (peer->getNetworkData().network->sendRPC(*peer, rotation ? SET_OBJECT_ROTATION_RPC : SET_OBJECT_POSITION_RPC,
 				Span<uint8_t>(bs.GetData(), bs.GetNumberOfBitsUsed()), OrderingChannel_SyncRPC, false))
 			{
-				entry.repair.sent(rotation, now);
+				entry.repair.sent(rotation);
 				pacer->consume(p->second, bitsToBytes(bs.GetNumberOfBitsUsed()) + StreamCost::MESSAGE_OVERHEAD_BYTES, 0.0f);
 			}
 		}
