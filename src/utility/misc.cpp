@@ -242,6 +242,21 @@ void Utility::forEachPlayerWithLanguage(std::unordered_map<int, int> Player::*in
 	}
 }
 
+bool Utility::attachPlayerObjectToPlayer(int playerid, int objectid, int attachedPlayerId, float offsetX, float offsetY, float offsetZ, float rotX, float rotY, float rotZ)
+{
+	GET_PLAYER_OBJECT_CHECKED(object, playerid, objectid, false);
+	IPlayer* attachedPlayer = ompgdk::GetPlayer(attachedPlayerId);
+	if (attachedPlayer)
+	{
+		object->attachToPlayer(*attachedPlayer, { offsetX, offsetY, offsetZ }, { rotX, rotY, rotZ });
+	}
+	else
+	{
+		object->resetAttachment();
+	}
+	return true;
+}
+
 std::size_t Utility::getChunkTickRate(int type, int playerid)
 {
 	if (playerid >= 0 && playerid < PLAYER_POOL_SIZE)

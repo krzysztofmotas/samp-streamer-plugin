@@ -983,7 +983,7 @@ void Streamer::processObjects(Player &player, const std::vector<SharedCell> &cel
 			}
 			else if (d->second->attach->player != INVALID_PLAYER_ID)
 			{
-				ompgdk::AttachPlayerObjectToPlayer(player.playerId, internalId, d->second->attach->player, d->second->attach->positionOffset[0], d->second->attach->positionOffset[1], d->second->attach->positionOffset[2], d->second->attach->rotation[0], d->second->attach->rotation[1], d->second->attach->rotation[2]);
+				Utility::attachPlayerObjectToPlayer(player.playerId, internalId, d->second->attach->player, d->second->attach->positionOffset[0], d->second->attach->positionOffset[1], d->second->attach->positionOffset[2], d->second->attach->rotation[0], d->second->attach->rotation[1], d->second->attach->rotation[2]);
 			}
 			else if (d->second->attach->vehicle != INVALID_VEHICLE_ID)
 			{
