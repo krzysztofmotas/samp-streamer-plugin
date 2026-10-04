@@ -197,7 +197,14 @@ void Streamer::performPlayerUpdate(Player &player, bool automatic)
 				{
 					ompgdk::GetVehiclePos(ompgdk::GetPlayerVehicleID(player.playerId), &player.position[0], &player.position[1], &player.position[2]);
 				}
-				if (player.position != position)
+				// The SA-MP client parks a spectator's camera at (50, 50, 50) whenever it drops the spectate target
+				// (target dead, streamed out, or not yet synced) and reports that as the player's position.
+				if (state == PlayerState::PlayerState_Spectating && player.position == Eigen::Vector3f(50.0f, 50.0f, 50.0f))
+				{
+					player.position = position;
+					update = false;
+				}
+				else if (player.position != position)
 				{
 					position = player.position;
 					Eigen::Vector3f velocity = Eigen::Vector3f::Zero();
