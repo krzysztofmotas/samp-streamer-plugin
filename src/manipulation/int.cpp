@@ -1112,7 +1112,7 @@ int Manipulation::setIntData(AMX *amx, cell *params)
 								}
 								else if (o->second->attach->player != INVALID_PLAYER_ID)
 								{
-									ompgdk::AttachPlayerObjectToPlayer(p->first, i->second, o->second->attach->player, o->second->attach->positionOffset[0], o->second->attach->positionOffset[1], o->second->attach->positionOffset[2], o->second->attach->rotation[0], o->second->attach->rotation[1], o->second->attach->rotation[2]);
+									Utility::attachPlayerObjectToPlayer(p->first, i->second, o->second->attach->player, o->second->attach->positionOffset[0], o->second->attach->positionOffset[1], o->second->attach->positionOffset[2], o->second->attach->rotation[0], o->second->attach->rotation[1], o->second->attach->rotation[2]);
 								}
 								else if (o->second->attach->vehicle != INVALID_VEHICLE_ID)
 								{

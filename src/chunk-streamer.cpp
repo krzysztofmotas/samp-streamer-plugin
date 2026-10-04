@@ -492,7 +492,7 @@ void ChunkStreamer::streamObjects(Player &player, bool automatic)
 					}
 					else if (std::get<1>(d->second)->attach->player != INVALID_PLAYER_ID)
 					{
-						ompgdk::AttachPlayerObjectToPlayer(player.playerId, internalId, std::get<1>(d->second)->attach->player, std::get<1>(d->second)->attach->positionOffset[0], std::get<1>(d->second)->attach->positionOffset[1], std::get<1>(d->second)->attach->positionOffset[2], std::get<1>(d->second)->attach->rotation[0], std::get<1>(d->second)->attach->rotation[1], std::get<1>(d->second)->attach->rotation[2]);
+						Utility::attachPlayerObjectToPlayer(player.playerId, internalId, std::get<1>(d->second)->attach->player, std::get<1>(d->second)->attach->positionOffset[0], std::get<1>(d->second)->attach->positionOffset[1], std::get<1>(d->second)->attach->positionOffset[2], std::get<1>(d->second)->attach->rotation[0], std::get<1>(d->second)->attach->rotation[1], std::get<1>(d->second)->attach->rotation[2]);
 						pacer->consume(player, StreamCost::ATTACH_OBJECT_BYTES, 0.0f);
 					}
 					else if (std::get<1>(d->second)->attach->vehicle != INVALID_VEHICLE_ID)
