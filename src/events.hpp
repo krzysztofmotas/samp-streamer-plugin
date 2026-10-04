@@ -53,6 +53,7 @@ class PlayerEvents :
 	void onPlayerDisconnect(IPlayer& player, PeerDisconnectReason reason) override
 	{
 		int playerid = player.getID();
+		core->getUnreliableUpdates()->removePlayer(playerid);
 		core->getData()->players.erase(playerid);
 	}
 

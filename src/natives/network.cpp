@@ -141,3 +141,26 @@ cell AMX_NATIVE_CALL Natives::Streamer_SetPlayerClientWorkRate(AMX *amx, cell *p
 	}
 	return 0;
 }
+
+cell AMX_NATIVE_CALL Natives::Streamer_ToggleObjectUnreliableUpdates(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(2);
+	std::unordered_map<int, Item::SharedObject>::iterator o = core->getData()->objects.find(static_cast<int>(params[1]));
+	if (o != core->getData()->objects.end())
+	{
+		o->second->unreliableUpdates = static_cast<int>(params[2]) != 0;
+		return 1;
+	}
+	return 0;
+}
+
+cell AMX_NATIVE_CALL Natives::Streamer_IsToggleObjectUnreliable(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(1);
+	std::unordered_map<int, Item::SharedObject>::iterator o = core->getData()->objects.find(static_cast<int>(params[1]));
+	if (o != core->getData()->objects.end())
+	{
+		return static_cast<cell>(o->second->unreliableUpdates);
+	}
+	return 0;
+}

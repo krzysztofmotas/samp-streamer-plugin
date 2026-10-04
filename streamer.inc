@@ -246,6 +246,8 @@ native Streamer_GetInstantStreamRadius(&Float:radius);
 native Streamer_SetInstantStreamRadius(Float:radius);
 native Streamer_GetPlayerNetworkStats(playerid, &pendingitems, &queuedmessages, &resendmessages, &Float:kbps);
 native Streamer_ToggleInlineMaterials(toggle);
+native Streamer_ToggleObjectUnreliableUpdates(STREAMER_TAG_OBJECT:objectid, toggle);
+native Streamer_IsToggleObjectUnreliable(STREAMER_TAG_OBJECT:objectid);
 native Streamer_IsToggleInlineMaterials();
 
 // Natives (Data Manipulation)

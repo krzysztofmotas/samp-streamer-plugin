@@ -51,6 +51,7 @@ void Streamer::calculateAverageElapsedTime()
 
 void Streamer::startAutomaticUpdate()
 {
+	core->getUnreliableUpdates()->settle();
 	if (!core->getData()->interfaces.empty())
 	{
 		std::chrono::steady_clock::time_point currentTime = std::chrono::steady_clock::now();

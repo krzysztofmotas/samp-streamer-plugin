@@ -191,6 +191,7 @@ namespace Item
 		int modelId;
 		bool noCameraCollision;
 		int objectId;
+		bool unreliableUpdates;
 		float originalComparableStreamDistance;
 		Eigen::Vector3f position;
 		Eigen::Vector3f positionOffset;

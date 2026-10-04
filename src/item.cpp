@@ -32,7 +32,7 @@ Item::Area::Area() : references(0) {}
 Item::Area::Attach::Attach() : references(0) {}
 Item::Checkpoint::Checkpoint() : references(0) {}
 Item::MapIcon::MapIcon() : references(0) {}
-Item::Object::Object() : references(0) {}
+Item::Object::Object() : references(0), unreliableUpdates(false) {}
 Item::Object::Attach::Attach() : references(0) {}
 Item::Object::Material::Main::Main() : references(0) {}
 Item::Object::Material::Text::Text() : references(0) {}
