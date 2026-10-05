@@ -257,6 +257,31 @@ bool Utility::attachPlayerObjectToPlayer(int playerid, int objectid, int attache
 	return true;
 }
 
+bool Utility::readPlayerStreamPosition(Player &player)
+{
+	Eigen::Vector3f position = Eigen::Vector3f::Zero();
+	if (player.updateUsingCameraPosition)
+	{
+		ompgdk::GetPlayerCameraPos(player.playerId, &position[0], &position[1], &position[2]);
+	}
+	else if (ompgdk::IsPlayerInAnyVehicle(player.playerId))
+	{
+		ompgdk::GetVehiclePos(ompgdk::GetPlayerVehicleID(player.playerId), &position[0], &position[1], &position[2]);
+	}
+	else
+	{
+		ompgdk::GetPlayerPos(player.playerId, &position[0], &position[1], &position[2]);
+	}
+	// The SA-MP client parks a spectator's camera at (50, 50, 50) whenever it drops the spectate target
+	// (target dead, streamed out, or not yet synced) and reports that as the player's position.
+	if (ompgdk::GetPlayerState(player.playerId) == PlayerState::PlayerState_Spectating && position == Eigen::Vector3f(50.0f, 50.0f, 50.0f))
+	{
+		return false;
+	}
+	player.position = position;
+	return true;
+}
+
 std::size_t Utility::getChunkTickRate(int type, int playerid)
 {
 	if (playerid >= 0 && playerid < PLAYER_POOL_SIZE)

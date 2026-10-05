@@ -188,19 +188,8 @@ void Streamer::performPlayerUpdate(Player &player, bool automatic)
 			int state = ompgdk::GetPlayerState(player.playerId);
 			if ((state != PlayerState::PlayerState_None && state != PlayerState::PlayerState_Wasted) || (state == PlayerState::PlayerState_Spectating && !player.requestingClass))
 			{
-				if (!ompgdk::IsPlayerInAnyVehicle(player.playerId))
+				if (!Utility::readPlayerStreamPosition(player))
 				{
-					ompgdk::GetPlayerPos(player.playerId, &player.position[0], &player.position[1], &player.position[2]);
-				}
-				else
-				{
-					ompgdk::GetVehiclePos(ompgdk::GetPlayerVehicleID(player.playerId), &player.position[0], &player.position[1], &player.position[2]);
-				}
-				// The SA-MP client parks a spectator's camera at (50, 50, 50) whenever it drops the spectate target
-				// (target dead, streamed out, or not yet synced) and reports that as the player's position.
-				if (state == PlayerState::PlayerState_Spectating && player.position == Eigen::Vector3f(50.0f, 50.0f, 50.0f))
-				{
-					player.position = position;
 					update = false;
 				}
 				else if (player.position != position)
@@ -233,7 +222,10 @@ void Streamer::performPlayerUpdate(Player &player, bool automatic)
 		}
 		else
 		{
-			ompgdk::GetPlayerCameraPos(player.playerId, &player.position[0], &player.position[1], &player.position[2]);
+			if (!Utility::readPlayerStreamPosition(player))
+			{
+				update = false;
+			}
 		}
 		if (player.delayedCheckpoint)
 		{

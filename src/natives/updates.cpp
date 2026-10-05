@@ -116,7 +116,7 @@ cell AMX_NATIVE_CALL Natives::Streamer_Update(AMX *amx, cell *params)
 	{
 		p->second.interiorId = ompgdk::GetPlayerInterior(p->first);
 		p->second.worldId = ompgdk::GetPlayerVirtualWorld(p->first);
-		ompgdk::GetPlayerPos(p->first, &p->second.position[0], &p->second.position[1], &p->second.position[2]);
+		Utility::readPlayerStreamPosition(p->second);
 		core->getStreamer()->startManualUpdate(p->second, static_cast<int>(params[2]));
 		return 1;
 	}
