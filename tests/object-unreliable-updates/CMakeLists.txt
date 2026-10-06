@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.19)
+project(object_unreliable_updates_tests LANGUAGES CXX)
+enable_testing()
+add_executable(object_unreliable_updates_tests main.cpp)
+target_compile_features(object_unreliable_updates_tests PRIVATE cxx_std_17)
+target_include_directories(object_unreliable_updates_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+add_test(NAME object_unreliable_updates COMMAND object_unreliable_updates_tests)

@@ -53,6 +53,7 @@ void NetworkPacer::sample(Player &player)
 	if (!readStatistics(player, stats))
 	{
 		budget.allowance = std::numeric_limits<int>::max();
+		budget.congested = false;
 		return;
 	}
 	budget.bitsPerSecond = stats.bitsPerSecond;
@@ -61,6 +62,7 @@ void NetworkPacer::sample(Player &player)
 	if (stats.messagesOnResendQueue >= RESEND_QUEUE_LIMIT)
 	{
 		budget.allowance = 0;
+		budget.congested = true;
 		return;
 	}
 	// bitsPerSecond is RakNet's own bandwidth estimate for this connection, so the target
@@ -69,7 +71,18 @@ void NetworkPacer::sample(Player &player)
 	// While streaming, the queue is mostly our own messages, so their recent size is used for all
 	// of it; smaller sync packets in the queue only make this an overestimate
 	int queuedMessageBytes = std::clamp(static_cast<int>(budget.messageBytes), MIN_QUEUED_MESSAGE_BYTES, MAX_QUEUED_MESSAGE_BYTES);
-	budget.allowance = static_cast<int>(targetBytes) - static_cast<int>(stats.messageSendBuffer) * queuedMessageBytes;
+	int queuedBytes = static_cast<int>(stats.messageSendBuffer) * queuedMessageBytes;
+	budget.allowance = static_cast<int>(targetBytes) - queuedBytes;
+	budget.congested = queuedBytes >= static_cast<int>(targetBytes);
+}
+
+bool NetworkPacer::isCongested(Player &player)
+{
+	if (std::chrono::steady_clock::now() - player.networkBudget.sampleTime >= SAMPLE_INTERVAL)
+	{
+		sample(player);
+	}
+	return player.networkBudget.congested;
 }
 
 bool NetworkPacer::readStatistics(const Player &player, NetworkStats &stats) const

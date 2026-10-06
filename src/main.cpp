@@ -89,6 +89,8 @@ AMX_NATIVE_INFO natives[] =
 	{ "Streamer_SetInstantStreamRadius", Natives::Streamer_SetInstantStreamRadius },
 	{ "Streamer_GetPlayerNetworkStats", Natives::Streamer_GetPlayerNetworkStats },
 	{ "Streamer_ToggleInlineMaterials", Natives::Streamer_ToggleInlineMaterials },
+	{ "Streamer_ToggleObjectUnreliableUpdates", Natives::Streamer_ToggleObjectUnreliableUpdates },
+	{ "Streamer_IsToggleObjectUnreliable", Natives::Streamer_IsToggleObjectUnreliable },
 	{ "Streamer_IsToggleInlineMaterials", Natives::Streamer_IsToggleInlineMaterials },
 	// Data Manipulation
 	{ "Streamer_GetFloatData", Natives::Streamer_GetFloatData },
@@ -326,6 +328,7 @@ class OmpStreamerComponent final : public IComponent, public CoreEventHandler, p
 		for (auto network : omp_core->getNetworks()) {
 			network->getPerPacketOutEventDispatcher().addEventHandler(this, 207);
 			materialInlineHooks.registerOn(network);
+			unreliableUpdateHooks.registerOn(network);
 		}
 		pawnComponent->getEventDispatcher().addEventHandler(this);
 		omp_core->getEventDispatcher().addEventHandler(this);
@@ -402,6 +405,7 @@ private:
 	IPawnComponent* pawnComponent = nullptr;
 	EventHandler streamerEventHandler;
 	ObjectMaterialInlineHooks materialInlineHooks;
+	ObjectUnreliableUpdateHooks unreliableUpdateHooks;
 };
 
 COMPONENT_ENTRY_POINT() {

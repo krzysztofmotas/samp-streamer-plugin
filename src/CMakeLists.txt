@@ -18,6 +18,7 @@ list(APPEND PLUGIN_SOURCES
 	main.cpp
 	network-pacer.cpp
 	object-material-inline.cpp
+	object-unreliable-updates.cpp
 	player.cpp
 	streamer.cpp
 	omp-nethack.cpp

@@ -4,8 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - 'master'
-      - 'open.mp'
+      - '**'
   pull_request:
     branches:
       - '*'

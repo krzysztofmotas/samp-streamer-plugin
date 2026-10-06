@@ -106,7 +106,15 @@ cell AMX_NATIVE_CALL Natives::SetDynamicObjectPos(AMX *amx, cell *params)
 			std::unordered_map<int, int>::iterator i = p->second.internalObjects.find(o->first);
 			if (i != p->second.internalObjects.end())
 			{
+				if (o->second->unreliableUpdates)
+				{
+					core->getUnreliableUpdates()->begin(p->first);
+				}
 				ompgdk::SetPlayerObjectPos(p->first, i->second, o->second->position[0], o->second->position[1], o->second->position[2]);
+				if (o->second->unreliableUpdates)
+				{
+					core->getUnreliableUpdates()->finish(p->second, o->first, false);
+				}
 			}
 		}
 		if (position[0] != o->second->position[0] || position[1] != o->second->position[1])
@@ -163,7 +171,15 @@ cell AMX_NATIVE_CALL Natives::SetDynamicObjectRot(AMX *amx, cell *params)
 			std::unordered_map<int, int>::iterator i = p->second.internalObjects.find(o->first);
 			if (i != p->second.internalObjects.end())
 			{
+				if (o->second->unreliableUpdates)
+				{
+					core->getUnreliableUpdates()->begin(p->first);
+				}
 				ompgdk::SetPlayerObjectRot(p->first, i->second, o->second->rotation[0], o->second->rotation[1], o->second->rotation[2]);
+				if (o->second->unreliableUpdates)
+				{
+					core->getUnreliableUpdates()->finish(p->second, o->first, true);
+				}
 			}
 		}
 		if (o->second->move)

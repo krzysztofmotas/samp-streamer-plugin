@@ -89,6 +89,8 @@ namespace Natives
 	cell AMX_NATIVE_CALL Streamer_SetInstantStreamRadius(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL Streamer_GetPlayerNetworkStats(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL Streamer_ToggleInlineMaterials(AMX *amx, cell *params);
+	cell AMX_NATIVE_CALL Streamer_ToggleObjectUnreliableUpdates(AMX *amx, cell *params);
+	cell AMX_NATIVE_CALL Streamer_IsToggleObjectUnreliable(AMX *amx, cell *params);
 	cell AMX_NATIVE_CALL Streamer_IsToggleInlineMaterials(AMX *amx, cell *params);
 	// Data Manipulation
 	cell AMX_NATIVE_CALL Streamer_GetFloatData(AMX *amx, cell *params);

@@ -28,4 +28,5 @@ Core::Core()
 	streamer.reset(new Streamer);
 	networkPacer.reset(new NetworkPacer);
 	materialInliner.reset(new ObjectMaterialInliner);
+	unreliableUpdates.reset(new ObjectUnreliableUpdates);
 }
