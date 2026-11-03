@@ -36,13 +36,17 @@ namespace Item
 // is resent late, blocks the ordered channel and lowers RakNet's bandwidth estimate.
 // An idle property is resent once reliably, 200ms after its last update, so a lost or dropped
 // final update cannot leave the client showing a stale position.
+// MoveObject RPCs are sent the same way for objects re-moved many times per second (MoveDynamicObject
+// on every physics tick). They carry the current position, so the StopObject RPC sent before each
+// move is dropped, and the repair waits until the move has finished.
 class ObjectUnreliableUpdates
 {
 public:
 	ObjectUnreliableUpdates();
 
-	void begin(int playerId);
+	void begin(int playerId, bool move = false);
 	void finish(Player &player, int objectId, bool rotation);
+	void finishMove(Player &player, int objectId, bool rotation);
 	void settle();
 	void removePlayer(int playerId);
 
@@ -56,7 +60,10 @@ private:
 		ObjectUpdateRepair repair;
 	};
 
+	void send(Player &player, int objectId, bool position, bool rotation);
+
 	int capturePlayerId;
+	bool captureMove;
 	IPlayer *capturePeer;
 	int captureRpcId;
 	std::vector<uint8_t> data;
@@ -78,10 +85,22 @@ struct ObjectUnreliableUpdateHooks
 		bool onSend(IPlayer *peer, NetworkBitStream &bs) override;
 	};
 
+	struct MoveObjectHook : public SingleNetworkOutEventHandler
+	{
+		bool onSend(IPlayer *peer, NetworkBitStream &bs) override;
+	};
+
+	struct StopObjectHook : public SingleNetworkOutEventHandler
+	{
+		bool onSend(IPlayer *peer, NetworkBitStream &bs) override;
+	};
+
 	void registerOn(INetwork *network);
 
 	SetObjectPositionHook setObjectPositionHook;
 	SetObjectRotationHook setObjectRotationHook;
+	MoveObjectHook moveObjectHook;
+	StopObjectHook stopObjectHook;
 };
 
 #endif

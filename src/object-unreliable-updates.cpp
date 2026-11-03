@@ -25,6 +25,8 @@ namespace
 {
 	constexpr int SET_OBJECT_POSITION_RPC = 45;
 	constexpr int SET_OBJECT_ROTATION_RPC = 46;
+	constexpr int MOVE_OBJECT_RPC = 99;
+	constexpr int STOP_OBJECT_RPC = 122;
 	// ID_RPC in omp's RAKNET_LEGACY build; an RPC is sent as this byte, the RPC id, the compressed
 	// payload bit length and the payload, which the client handles regardless of reliability
 	constexpr uint8_t ID_RPC = 20;
@@ -38,21 +40,36 @@ namespace
 ObjectUnreliableUpdates::ObjectUnreliableUpdates()
 {
 	capturePlayerId = INVALID_PLAYER_ID;
+	captureMove = false;
 	capturePeer = nullptr;
 	captureRpcId = 0;
 	bits = 0;
 }
 
-void ObjectUnreliableUpdates::begin(int playerId)
+void ObjectUnreliableUpdates::begin(int playerId, bool move)
 {
 	capturePlayerId = playerId;
+	captureMove = move;
 	capturePeer = nullptr;
 	bits = 0;
 }
 
 void ObjectUnreliableUpdates::finish(Player &player, int objectId, bool rotation)
 {
+	send(player, objectId, !rotation, rotation);
+}
+
+// A move changes the position and, when a target rotation is given, the rotation as well;
+// both are repaired once the move has finished
+void ObjectUnreliableUpdates::finishMove(Player &player, int objectId, bool rotation)
+{
+	send(player, objectId, true, rotation);
+}
+
+void ObjectUnreliableUpdates::send(Player &player, int objectId, bool position, bool rotation)
+{
 	capturePlayerId = INVALID_PLAYER_ID;
+	captureMove = false;
 	if (!capturePeer || !bits)
 	{
 		return;
@@ -72,7 +89,15 @@ void ObjectUnreliableUpdates::finish(Player &player, int objectId, bool rotation
 		entry.object = object->second;
 		entry.internalId = internal->second;
 	}
-	entry.repair.updated(rotation, std::chrono::steady_clock::now());
+	const auto now = std::chrono::steady_clock::now();
+	if (position)
+	{
+		entry.repair.updated(false, now);
+	}
+	if (rotation)
+	{
+		entry.repair.updated(true, now);
+	}
 	INetwork *network = capturePeer->getNetworkData().network;
 	if (network && !(core->getNetworkPacer()->getEnabled() && core->getNetworkPacer()->isCongested(player)))
 	{
@@ -180,8 +205,18 @@ void ObjectUnreliableUpdates::removePlayer(int playerId)
 
 bool ObjectUnreliableUpdates::onObjectUpdate(IPlayer *peer, NetworkBitStream &bs, int rpcId)
 {
-	if (capturePlayerId == INVALID_PLAYER_ID || !peer || peer->getID() != capturePlayerId || bits
+	if (capturePlayerId == INVALID_PLAYER_ID || !peer || peer->getID() != capturePlayerId
 		|| !peer->getNetworkData().network || peer->getNetworkData().network->getNetworkType() != ENetworkType_RakNetLegacy)
+	{
+		return true;
+	}
+	// Each MoveObject carries the current position, so the stop sent before it is redundant and
+	// would still go out as a reliable ordered RPC on every re-move
+	if (rpcId == STOP_OBJECT_RPC)
+	{
+		return !captureMove;
+	}
+	if (bits || captureMove != (rpcId == MOVE_OBJECT_RPC))
 	{
 		return true;
 	}
@@ -202,8 +237,20 @@ bool ObjectUnreliableUpdateHooks::SetObjectRotationHook::onSend(IPlayer *peer, N
 	return !core || core->getUnreliableUpdates()->onObjectUpdate(peer, bs, SET_OBJECT_ROTATION_RPC);
 }
 
+bool ObjectUnreliableUpdateHooks::MoveObjectHook::onSend(IPlayer *peer, NetworkBitStream &bs)
+{
+	return !core || core->getUnreliableUpdates()->onObjectUpdate(peer, bs, MOVE_OBJECT_RPC);
+}
+
+bool ObjectUnreliableUpdateHooks::StopObjectHook::onSend(IPlayer *peer, NetworkBitStream &bs)
+{
+	return !core || core->getUnreliableUpdates()->onObjectUpdate(peer, bs, STOP_OBJECT_RPC);
+}
+
 void ObjectUnreliableUpdateHooks::registerOn(INetwork *network)
 {
 	network->getPerRPCOutEventDispatcher().addEventHandler(&setObjectPositionHook, SET_OBJECT_POSITION_RPC);
 	network->getPerRPCOutEventDispatcher().addEventHandler(&setObjectRotationHook, SET_OBJECT_ROTATION_RPC);
+	network->getPerRPCOutEventDispatcher().addEventHandler(&moveObjectHook, MOVE_OBJECT_RPC);
+	network->getPerRPCOutEventDispatcher().addEventHandler(&stopObjectHook, STOP_OBJECT_RPC);
 }

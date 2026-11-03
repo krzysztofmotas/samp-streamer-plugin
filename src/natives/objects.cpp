@@ -256,13 +256,22 @@ cell AMX_NATIVE_CALL Natives::MoveDynamicObject(AMX *amx, cell *params)
 		}
 		o->second->move->speed = amx_ctof(params[5]);
 		o->second->move->time = std::chrono::steady_clock::now();
+		const bool rotating = (std::get<0>(o->second->move->rotation).maxCoeff() + 1000.0f) > std::numeric_limits<float>::epsilon();
 		for (std::unordered_map<int, Player>::iterator p = core->getData()->players.begin(); p != core->getData()->players.end(); ++p)
 		{
 			std::unordered_map<int, int>::iterator i = p->second.internalObjects.find(o->first);
 			if (i != p->second.internalObjects.end())
 			{
+				if (o->second->unreliableUpdates)
+				{
+					core->getUnreliableUpdates()->begin(p->first, true);
+				}
 				ompgdk::StopPlayerObject(p->first, i->second);
 				ompgdk::MovePlayerObject(p->first, i->second, std::get<0>(o->second->move->position)[0], std::get<0>(o->second->move->position)[1], std::get<0>(o->second->move->position)[2], o->second->move->speed, std::get<0>(o->second->move->rotation)[0], std::get<0>(o->second->move->rotation)[1], std::get<0>(o->second->move->rotation)[2]);
+				if (o->second->unreliableUpdates)
+				{
+					core->getUnreliableUpdates()->finishMove(p->second, o->first, rotating);
+				}
 			}
 		}
 		core->getStreamer()->movingObjects.insert(o->second);

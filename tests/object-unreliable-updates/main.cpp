@@ -39,6 +39,19 @@ struct Fixture
         updates.finish(state.data.players[1], 7, rotation);
         return passThrough;
     }
+    // MoveDynamicObject sends StopObject and then MoveObject for every streamed-in player
+    std::pair<bool, bool> move(bool rotating = false)
+    {
+        NetworkBitStream stop, move;
+        stop.writeUINT16(3);
+        move.writeUINT16(3);
+        move.writeVEC3(live.position);
+        updates.begin(1, true);
+        const bool stopPassThrough = updates.onObjectUpdate(&peer, stop, 122);
+        const bool movePassThrough = updates.onObjectUpdate(&peer, move, 99);
+        updates.finishMove(state.data.players[1], 7, rotating);
+        return {stopPassThrough, movePassThrough};
+    }
     void due() { std::this_thread::sleep_for(std::chrono::milliseconds(220)); }
 };
 
@@ -127,6 +140,46 @@ int main()
             f.due(); f.updates.settle();
             require(f.network.reliable.size() == 2 && f.network.reliable[1].rpc == 46,
                 "rotation did not settle independently");
+        }
+        {
+            Fixture f;
+            const auto passThrough = f.move();
+            require(!passThrough.first, "stop before an unreliable move was not dropped");
+            require(!passThrough.second, "move was not captured");
+            require(f.network.unreliable.size() == 1 && f.network.unreliable[0].data[1] == 99, "move was not resent unreliably");
+            f.live.moving = true; f.due(); f.updates.settle();
+            require(f.network.reliable.empty(), "repair interrupted a running move");
+            f.live.moving = false;
+            f.live.position.x = 321;
+            f.due(); f.updates.settle();
+            require(f.network.reliable.size() == 1 && f.network.reliable[0].rpc == 45, "finished move position was not repaired");
+            float x;
+            std::memcpy(&x, f.network.reliable[0].data.data() + 2, sizeof(x));
+            require(x == 321, "move repair did not read the final omp position");
+        }
+        {
+            Fixture f;
+            f.move(true); f.due(); f.updates.settle();
+            require(f.network.reliable.size() == 2, "rotating move did not repair position and rotation");
+        }
+        {
+            Fixture f;
+            NetworkBitStream stop;
+            stop.writeUINT16(3);
+            require(f.updates.onObjectUpdate(&f.peer, stop, 122), "stop outside a move capture was dropped");
+            f.updates.begin(1);
+            require(f.updates.onObjectUpdate(&f.peer, stop, 122), "StopDynamicObject stop was dropped");
+            NetworkBitStream move;
+            move.writeUINT16(3);
+            require(f.updates.onObjectUpdate(&f.peer, move, 99), "move captured by a position capture");
+            f.updates.finish(f.state.data.players[1], 7, false);
+            require(f.network.unreliable.empty(), "uncaptured move was sent unreliably");
+        }
+        {
+            Fixture f;
+            f.network.type = 1;
+            const auto passThrough = f.move();
+            require(passThrough.first && passThrough.second, "non-RakNet backend must keep the original stop and move");
         }
         {
             Fixture f;
