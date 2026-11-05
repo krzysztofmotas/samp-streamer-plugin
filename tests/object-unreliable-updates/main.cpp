@@ -144,9 +144,11 @@ int main()
         {
             Fixture f;
             const auto passThrough = f.move();
-            require(!passThrough.first, "stop before an unreliable move was not dropped");
+            require(!passThrough.first, "stop before an unreliable move was not captured");
             require(!passThrough.second, "move was not captured");
-            require(f.network.unreliable.size() == 1 && f.network.unreliable[0].data[1] == 99, "move was not resent unreliably");
+            // The client snaps a still-moving object to its previous target unless it was stopped first
+            require(f.network.unreliable.size() == 2 && f.network.unreliable[0].data[1] == 122 && f.network.unreliable[1].data[1] == 99,
+                "stop and move were not resent unreliably in order");
             f.live.moving = true; f.due(); f.updates.settle();
             require(f.network.reliable.empty(), "repair interrupted a running move");
             f.live.moving = false;

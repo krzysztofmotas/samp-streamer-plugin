@@ -37,8 +37,9 @@ namespace Item
 // An idle property is resent once reliably, 200ms after its last update, so a lost or dropped
 // final update cannot leave the client showing a stale position.
 // MoveObject RPCs are sent the same way for objects re-moved many times per second (MoveDynamicObject
-// on every physics tick). They carry the current position, so the StopObject RPC sent before each
-// move is dropped, and the repair waits until the move has finished.
+// on every physics tick), together with the StopObject RPC sent before each re-move: the client
+// ignores the current position in MoveObject and snaps a still-moving object to its previous
+// target unless it was stopped first. The repair waits until the move has finished.
 class ObjectUnreliableUpdates
 {
 public:
@@ -61,6 +62,8 @@ private:
 	};
 
 	void send(Player &player, int objectId, bool position, bool rotation);
+	void sendUnreliable(int rpcId, const std::vector<uint8_t> &payload, int payloadBits);
+	void reset();
 
 	int capturePlayerId;
 	bool captureMove;
@@ -68,6 +71,8 @@ private:
 	int captureRpcId;
 	std::vector<uint8_t> data;
 	int bits;
+	std::vector<uint8_t> stopData;
+	int stopBits;
 	std::unordered_map<uint64_t, Pending> pending;
 };
 

@@ -44,6 +44,7 @@ ObjectUnreliableUpdates::ObjectUnreliableUpdates()
 	capturePeer = nullptr;
 	captureRpcId = 0;
 	bits = 0;
+	stopBits = 0;
 }
 
 void ObjectUnreliableUpdates::begin(int playerId, bool move)
@@ -52,6 +53,7 @@ void ObjectUnreliableUpdates::begin(int playerId, bool move)
 	captureMove = move;
 	capturePeer = nullptr;
 	bits = 0;
+	stopBits = 0;
 }
 
 void ObjectUnreliableUpdates::finish(Player &player, int objectId, bool rotation)
@@ -66,20 +68,37 @@ void ObjectUnreliableUpdates::finishMove(Player &player, int objectId, bool rota
 	send(player, objectId, true, rotation);
 }
 
-void ObjectUnreliableUpdates::send(Player &player, int objectId, bool position, bool rotation)
+void ObjectUnreliableUpdates::sendUnreliable(int rpcId, const std::vector<uint8_t> &payload, int payloadBits)
+{
+	NetworkBitStream bs;
+	bs.writeUINT8(ID_RPC);
+	bs.writeUINT8(static_cast<uint8_t>(rpcId));
+	bs.WriteCompressed(static_cast<unsigned int>(payloadBits));
+	bs.WriteBits(payload.data(), payloadBits, false);
+	capturePeer->getNetworkData().network->sendPacket(*capturePeer, Span<uint8_t>(bs.GetData(), bs.GetNumberOfBitsUsed()), OrderingChannel_Unordered, false);
+}
+
+void ObjectUnreliableUpdates::reset()
 {
 	capturePlayerId = INVALID_PLAYER_ID;
 	captureMove = false;
-	if (!capturePeer || !bits)
+	capturePeer = nullptr;
+	bits = 0;
+	stopBits = 0;
+}
+
+void ObjectUnreliableUpdates::send(Player &player, int objectId, bool position, bool rotation)
+{
+	if (!capturePeer || (!bits && !stopBits))
 	{
+		reset();
 		return;
 	}
 	auto object = core->getData()->objects.find(objectId);
 	auto internal = player.internalObjects.find(objectId);
 	if (object == core->getData()->objects.end() || internal == player.internalObjects.end())
 	{
-		capturePeer = nullptr;
-		bits = 0;
+		reset();
 		return;
 	}
 	Pending &entry = pending[pendingKey(player.playerId, objectId)];
@@ -98,18 +117,19 @@ void ObjectUnreliableUpdates::send(Player &player, int objectId, bool position, 
 	{
 		entry.repair.updated(true, now);
 	}
-	INetwork *network = capturePeer->getNetworkData().network;
-	if (network && !(core->getNetworkPacer()->getEnabled() && core->getNetworkPacer()->isCongested(player)))
+	if (capturePeer->getNetworkData().network && !(core->getNetworkPacer()->getEnabled() && core->getNetworkPacer()->isCongested(player)))
 	{
-		NetworkBitStream bs;
-		bs.writeUINT8(ID_RPC);
-		bs.writeUINT8(static_cast<uint8_t>(captureRpcId));
-		bs.WriteCompressed(static_cast<unsigned int>(bits));
-		bs.WriteBits(data.data(), bits, false);
-		network->sendPacket(*capturePeer, Span<uint8_t>(bs.GetData(), bs.GetNumberOfBitsUsed()), OrderingChannel_Unordered, false);
+		// The stop goes out first, right before the move, so both normally share one datagram
+		if (stopBits)
+		{
+			sendUnreliable(STOP_OBJECT_RPC, stopData, stopBits);
+		}
+		if (bits)
+		{
+			sendUnreliable(captureRpcId, data, bits);
+		}
 	}
-	capturePeer = nullptr;
-	bits = 0;
+	reset();
 }
 
 void ObjectUnreliableUpdates::settle()
@@ -210,11 +230,19 @@ bool ObjectUnreliableUpdates::onObjectUpdate(IPlayer *peer, NetworkBitStream &bs
 	{
 		return true;
 	}
-	// Each MoveObject carries the current position, so the stop sent before it is redundant and
-	// would still go out as a reliable ordered RPC on every re-move
+	// The 0.3.7 client ignores the current position in MoveObject. When the object is still moving,
+	// it first snaps it to the previous move's target, so the stop sent before each re-move must
+	// reach the client too; it is sent unreliably together with the move.
 	if (rpcId == STOP_OBJECT_RPC)
 	{
-		return !captureMove;
+		if (!captureMove || stopBits || bits)
+		{
+			return true;
+		}
+		capturePeer = peer;
+		stopBits = bs.GetNumberOfBitsUsed();
+		stopData.assign(bs.GetData(), bs.GetData() + bitsToBytes(stopBits));
+		return false;
 	}
 	if (bits || captureMove != (rpcId == MOVE_OBJECT_RPC))
 	{
