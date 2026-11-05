@@ -370,7 +370,6 @@ class OmpStreamerComponent final : public IComponent, public CoreEventHandler, p
 			pawnComponent = nullptr;
 			pAMXFunctions = nullptr;
 			omp_core->printLn("\n\n*** Streamer Plugin v%s (%s) by Incognito unloaded ***\n\n", PLUGIN_VERSION, GIT_COMMIT_HASH);
-			core.reset();
 		}
 	}
 
@@ -385,6 +384,7 @@ class OmpStreamerComponent final : public IComponent, public CoreEventHandler, p
 			pawnComponent->getEventDispatcher().removeEventHandler(this);
 			omp_core->getEventDispatcher().removeEventHandler(this);
 		}
+		core.reset();
 		delete this;
 	}
 
