@@ -1,6 +1,15 @@
 SA-MP Streamer Plugin
 =====================
 
+Unreleased
+----------
+
+- Added dynamic vehicles (STREAMER_TYPE_VEHICLE, CreateDynamicVehicle and
+  friends). Vehicles are streamed globally: a real open.mp vehicle exists
+  while any player is in range, and its position, health, damage, colours,
+  paintjob, components, number plate, params and trailer link are kept while
+  it is streamed out. This allows far more vehicles than the 2000-slot pool.
+
 v2.9.6
 ------
 

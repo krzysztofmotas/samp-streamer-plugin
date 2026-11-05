@@ -18,6 +18,7 @@
 
 #include "misc.h"
 #include "../core.h"
+#include "../vehicle-state.h"
 
 using namespace Utility;
 
@@ -40,6 +41,31 @@ std::unordered_map<int, Item::SharedActor>::iterator Utility::destroyActor(std::
 	}
 	core->getGrid()->removeActor(a->second);
 	return core->getData()->actors.erase(a);
+}
+
+std::unordered_map<int, Item::SharedVehicle>::iterator Utility::destroyVehicle(std::unordered_map<int, Item::SharedVehicle>::iterator v)
+{
+	Item::Vehicle::identifier.remove(v->first, core->getData()->vehicles.size());
+	std::unordered_map<int, int>::iterator i = core->getData()->internalVehicles.find(v->first);
+	if (i != core->getData()->internalVehicles.end())
+	{
+		core->getData()->destroyedVehicles.push_back(i->second);
+		core->getData()->internalVehiclesReverse.erase(i->second);
+		core->getData()->internalVehicles.erase(i);
+	}
+	core->getData()->discoveredVehicles.erase(v->first);
+	std::unordered_map<int, Item::SharedVehicle>::iterator t = core->getData()->vehicles.find(v->second->trailer);
+	if (t != core->getData()->vehicles.end() && t->second->cab == v->first)
+	{
+		t->second->cab = INVALID_STREAMER_ID;
+	}
+	std::unordered_map<int, Item::SharedVehicle>::iterator c = core->getData()->vehicles.find(v->second->cab);
+	if (c != core->getData()->vehicles.end() && c->second->trailer == v->first)
+	{
+		c->second->trailer = INVALID_STREAMER_ID;
+	}
+	core->getGrid()->removeVehicle(v->second);
+	return core->getData()->vehicles.erase(v);
 }
 
 std::unordered_map<int, Item::SharedArea>::iterator Utility::destroyArea(std::unordered_map<int, Item::SharedArea>::iterator a)
@@ -505,6 +531,23 @@ bool Utility::setRadiusMultiplier(int type, float value, int playerid)
 		}
 	}
 	return core->getData()->setGlobalRadiusMultiplier(type, value);
+}
+
+void Utility::processPendingDestroyedVehicles()
+{
+	if (!core->getData()->destroyedVehicles.empty())
+	{
+		IVehiclesComponent *component = VehicleState::getComponent();
+		std::vector<int>::iterator v = core->getData()->destroyedVehicles.begin();
+		while (v != core->getData()->destroyedVehicles.end())
+		{
+			if (component && component->get(*v))
+			{
+				component->release(*v);
+			}
+			v = core->getData()->destroyedVehicles.erase(v);
+		}
+	}
 }
 
 void Utility::processPendingDestroyedActors()

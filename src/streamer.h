@@ -71,6 +71,9 @@ private:
 	void discoverActors(Player &player, const std::vector<SharedCell> &cells);
 	void streamActors();
 
+	void discoverVehicles(Player &player, const std::vector<SharedCell> &cells);
+	void streamVehicles();
+
 	void processAreas(Player &player, const std::vector<SharedCell> &cells);
 	void processCheckpoints(Player &player, const std::vector<SharedCell> &cells);
 	void processRaceCheckpoints(Player &player, const std::vector<SharedCell> &cells);

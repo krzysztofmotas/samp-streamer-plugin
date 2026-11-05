@@ -31,6 +31,7 @@
 #define STREAMER_TYPE_3D_TEXT_LABEL (5)
 #define STREAMER_TYPE_AREA (6)
 #define STREAMER_TYPE_ACTOR (7)
+#define STREAMER_TYPE_VEHICLE (8)
 
 #define STREAMER_AREA_TYPE_CIRCLE (0)
 #define STREAMER_AREA_TYPE_CYLINDER (1)
@@ -63,8 +64,9 @@
 	#define STREAMER_TAG_3D_TEXT_LABEL DynamicText3D
 	#define STREAMER_TAG_AREA DynamicArea
 	#define STREAMER_TAG_ACTOR DynamicActor
+	#define STREAMER_TAG_VEHICLE DynamicVehicle
 
-	#define STREAMER_ALL_TAGS {DynamicObject,DynamicPickup,DynamicCP,DynamicRaceCP,DynamicMapIcon,DynamicText3D,DynamicArea,DynamicActor,_}
+	#define STREAMER_ALL_TAGS {DynamicObject,DynamicPickup,DynamicCP,DynamicRaceCP,DynamicMapIcon,DynamicText3D,DynamicArea,DynamicActor,DynamicVehicle,_}
 #else
 	#define STREAMER_TAG_OBJECT _
 	#define STREAMER_TAG_OBJECT_ALT _
@@ -74,6 +76,7 @@
 	#define STREAMER_TAG_MAP_ICON _
 	#define STREAMER_TAG_AREA _
 	#define STREAMER_TAG_ACTOR _
+	#define STREAMER_TAG_VEHICLE _
 
 	#if defined STREAMER_REMOVE_TEXT3D_TAG
 		#define STREAMER_TAG_3D_TEXT_LABEL _
@@ -112,6 +115,9 @@
 #endif
 #if !defined STREAMER_ACTOR_SD
 	#define STREAMER_ACTOR_SD 200.0
+#endif
+#if !defined STREAMER_VEHICLE_SD
+	#define STREAMER_VEHICLE_SD 300.0
 #endif
 
 // Include File Version
@@ -417,6 +423,54 @@ native IsDynamicActorInvulnerable(STREAMER_TAG_ACTOR:actorid);
 native STREAMER_TAG_ACTOR:GetPlayerTargetDynamicActor(playerid);
 native STREAMER_TAG_ACTOR:GetPlayerCameraTargetDynActor(playerid);
 
+// Natives (Vehicles)
+
+native STREAMER_TAG_VEHICLE:CreateDynamicVehicle(modelid, Float:x, Float:y, Float:z, Float:angle, color1, color2, respawn_delay = -1, bool:addsiren = false, worldid = 0, interiorid = -1, playerid = -1, Float:streamdistance = STREAMER_VEHICLE_SD, STREAMER_TAG_AREA:areaid = STREAMER_TAG_AREA:-1, priority = 0);
+native DestroyDynamicVehicle(STREAMER_TAG_VEHICLE:vehicleid);
+native IsValidDynamicVehicle(STREAMER_TAG_VEHICLE:vehicleid);
+native IsDynamicVehicleStreamedIn(STREAMER_TAG_VEHICLE:vehicleid, forplayerid);
+native GetDynamicVehicleInternalID(STREAMER_TAG_VEHICLE:vehicleid);
+native STREAMER_TAG_VEHICLE:GetDynamicVehicleFromInternal(vehicleid);
+native STREAMER_TAG_VEHICLE:GetPlayerDynamicVehicle(playerid);
+native PutPlayerInDynamicVehicle(playerid, STREAMER_TAG_VEHICLE:vehicleid, seatid);
+native GetDynamicVehiclePos(STREAMER_TAG_VEHICLE:vehicleid, &Float:x, &Float:y, &Float:z);
+native SetDynamicVehiclePos(STREAMER_TAG_VEHICLE:vehicleid, Float:x, Float:y, Float:z);
+native GetDynamicVehicleZAngle(STREAMER_TAG_VEHICLE:vehicleid, &Float:angle);
+native SetDynamicVehicleZAngle(STREAMER_TAG_VEHICLE:vehicleid, Float:angle);
+native GetDynamicVehicleHealth(STREAMER_TAG_VEHICLE:vehicleid, &Float:health);
+native SetDynamicVehicleHealth(STREAMER_TAG_VEHICLE:vehicleid, Float:health);
+native GetDynamicVehicleDamageStatus(STREAMER_TAG_VEHICLE:vehicleid, &panels, &doors, &lights, &tires);
+native UpdateDynamicVehicleDamageStatus(STREAMER_TAG_VEHICLE:vehicleid, panels, doors, lights, tires);
+native RepairDynamicVehicle(STREAMER_TAG_VEHICLE:vehicleid);
+native ChangeDynamicVehicleColours(STREAMER_TAG_VEHICLE:vehicleid, color1, color2);
+native GetDynamicVehicleColours(STREAMER_TAG_VEHICLE:vehicleid, &color1, &color2);
+native ChangeDynamicVehiclePaintjob(STREAMER_TAG_VEHICLE:vehicleid, paintjobid);
+native GetDynamicVehiclePaintjob(STREAMER_TAG_VEHICLE:vehicleid);
+native AddDynamicVehicleComponent(STREAMER_TAG_VEHICLE:vehicleid, componentid);
+native RemoveDynamicVehicleComponent(STREAMER_TAG_VEHICLE:vehicleid, componentid);
+native GetDynamicVehicleComponentInSlot(STREAMER_TAG_VEHICLE:vehicleid, slot);
+native SetDynamicVehicleNumberPlate(STREAMER_TAG_VEHICLE:vehicleid, const numberplate[]);
+native GetDynamicVehicleNumberPlate(STREAMER_TAG_VEHICLE:vehicleid, numberplate[], maxnumberplate = sizeof numberplate);
+native SetDynamicVehicleParamsEx(STREAMER_TAG_VEHICLE:vehicleid, engine, lights, alarm, doors, bonnet, boot, objective);
+native GetDynamicVehicleParamsEx(STREAMER_TAG_VEHICLE:vehicleid, &engine, &lights, &alarm, &doors, &bonnet, &boot, &objective);
+native SetDynamicVehicleParamsCarDoors(STREAMER_TAG_VEHICLE:vehicleid, frontleft, frontright, rearleft, rearright);
+native GetDynamicVehicleParamsCarDoors(STREAMER_TAG_VEHICLE:vehicleid, &frontleft, &frontright, &rearleft, &rearright);
+native SetDynamicVehicleParamsCarWindows(STREAMER_TAG_VEHICLE:vehicleid, frontleft, frontright, rearleft, rearright);
+native GetDynamicVehicleParamsCarWindows(STREAMER_TAG_VEHICLE:vehicleid, &frontleft, &frontright, &rearleft, &rearright);
+native GetDynamicVehicleVirtualWorld(STREAMER_TAG_VEHICLE:vehicleid);
+native SetDynamicVehicleVirtualWorld(STREAMER_TAG_VEHICLE:vehicleid, worldid);
+native LinkDynamicVehicleToInterior(STREAMER_TAG_VEHICLE:vehicleid, interiorid);
+native GetDynamicVehicleInterior(STREAMER_TAG_VEHICLE:vehicleid);
+native SetDynamicVehicleToRespawn(STREAMER_TAG_VEHICLE:vehicleid);
+native GetDynamicVehicleRespawnDelay(STREAMER_TAG_VEHICLE:vehicleid);
+native SetDynamicVehicleRespawnDelay(STREAMER_TAG_VEHICLE:vehicleid, respawn_delay);
+native GetDynamicVehicleModel(STREAMER_TAG_VEHICLE:vehicleid);
+native IsDynamicVehicleOccupied(STREAMER_TAG_VEHICLE:vehicleid);
+native IsDynamicVehicleDead(STREAMER_TAG_VEHICLE:vehicleid);
+native AttachTrailerToDynamicVehicle(STREAMER_TAG_VEHICLE:trailerid, STREAMER_TAG_VEHICLE:vehicleid);
+native DetachTrailerFromDynamicVehicle(STREAMER_TAG_VEHICLE:vehicleid);
+native STREAMER_TAG_VEHICLE:GetDynamicVehicleTrailer(STREAMER_TAG_VEHICLE:vehicleid);
+
 // Natives (Extended)
 
 native STREAMER_TAG_OBJECT:CreateDynamicObjectEx(modelid, Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz, Float:streamdistance = STREAMER_OBJECT_SD, Float:drawdistance = STREAMER_OBJECT_DD, const worlds[] = { -1 }, const interiors[] = { -1 }, const players[] = { -1 }, const STREAMER_TAG_AREA:areas[] = { STREAMER_TAG_AREA:-1 }, priority = 0, maxworlds = sizeof worlds, maxinteriors = sizeof interiors, maxplayers = sizeof players, maxareas = sizeof areas);
@@ -434,6 +488,7 @@ native STREAMER_TAG_AREA:CreateDynamicCuboidEx(Float:minx, Float:miny, Float:min
 native STREAMER_TAG_AREA:CreateDynamicCubeEx(Float:minx, Float:miny, Float:minz, Float:maxx, Float:maxy, Float:maxz, const worlds[] = { -1 }, const interiors[] = { -1 }, const players[] = { -1 }, priority = 0, maxworlds = sizeof worlds, maxinteriors = sizeof interiors, maxplayers = sizeof players);
 native STREAMER_TAG_AREA:CreateDynamicPolygonEx(const Float:points[], Float:minz = -FLOAT_INFINITY, Float:maxz = FLOAT_INFINITY, maxpoints = sizeof points, const worlds[] = { -1 }, const interiors[] = { -1 }, const players[] = { -1 }, priority = 0, maxworlds = sizeof worlds, maxinteriors = sizeof interiors, maxplayers = sizeof players);
 native STREAMER_TAG_ACTOR:CreateDynamicActorEx(modelid, Float:x, Float:y, Float:z, Float:r, invulnerable = 1, Float:health = 100.0, Float:streamdistance = STREAMER_ACTOR_SD, const worlds[] = { 0 }, const interiors[] = { -1 }, const players[] = { -1 }, const STREAMER_TAG_AREA:areas[] = { STREAMER_TAG_AREA:-1 }, priority = 0, maxworlds = sizeof worlds, maxinteriors = sizeof interiors, maxplayers = sizeof players, maxareas = sizeof areas);
+native STREAMER_TAG_VEHICLE:CreateDynamicVehicleEx(modelid, Float:x, Float:y, Float:z, Float:angle, color1, color2, respawn_delay = -1, bool:addsiren = false, Float:streamdistance = STREAMER_VEHICLE_SD, const worlds[] = { 0 }, const interiors[] = { -1 }, const players[] = { -1 }, const STREAMER_TAG_AREA:areas[] = { STREAMER_TAG_AREA:-1 }, priority = 0, maxworlds = sizeof worlds, maxinteriors = sizeof interiors, maxplayers = sizeof players, maxareas = sizeof areas);
 
 // Natives (Deprecated)
 
@@ -483,6 +538,8 @@ forward OnPlayerLeaveDynamicArea(playerid, STREAMER_TAG_AREA:areaid);
 forward OnPlayerGiveDamageDynamicActor(playerid, STREAMER_TAG_ACTOR:actorid, Float:amount, weaponid, bodypart);
 forward OnDynamicActorStreamIn(STREAMER_TAG_ACTOR:actorid, forplayerid);
 forward OnDynamicActorStreamOut(STREAMER_TAG_ACTOR:actorid, forplayerid);
+forward OnDynamicVehicleStreamIn(STREAMER_TAG_VEHICLE:vehicleid, forplayerid);
+forward OnDynamicVehicleStreamOut(STREAMER_TAG_VEHICLE:vehicleid, forplayerid);
 forward Streamer_OnItemStreamIn(type, STREAMER_ALL_TAGS:id, forplayerid);
 forward Streamer_OnItemStreamOut(type, STREAMER_ALL_TAGS:id, forplayerid);
 forward Streamer_OnPluginError(const error[]);

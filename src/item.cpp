@@ -27,6 +27,7 @@ Identifier Item::Pickup::identifier;
 Identifier Item::RaceCheckpoint::identifier;
 Identifier Item::TextLabel::identifier;
 Identifier Item::Actor::identifier;
+Identifier Item::Vehicle::identifier;
 
 Item::Area::Area() : references(0) {}
 Item::Area::Attach::Attach() : references(0) {}
@@ -43,3 +44,7 @@ Item::TextLabel::TextLabel() : references(0) {}
 Item::TextLabel::Attach::Attach() : references(0) {}
 Item::Actor::Actor() : references(0) {}
 Item::Actor::Anim::Anim() : references(0) {}
+Item::Vehicle::Vehicle() : cab(INVALID_STREAMER_ID), damageDoors(0), damageLights(0), damagePanels(0), damageTyres(0), dead(false), paintjob(-1), references(0), streamCallbacks(false), trailer(INVALID_STREAMER_ID)
+{
+	components.fill(0);
+}

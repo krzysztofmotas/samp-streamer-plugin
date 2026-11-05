@@ -25,6 +25,7 @@ public:
 	Grid();
 
 	void addActor(const Item::SharedActor &actor);
+	void addVehicle(const Item::SharedVehicle &vehicle);
 	void addArea(const Item::SharedArea &area);
 	void addCheckpoint(const Item::SharedCheckpoint &checkpoint);
 	void addMapIcon(const Item::SharedMapIcon &mapIcon);
@@ -57,6 +58,7 @@ public:
 	void rebuildGrid();
 
 	void removeActor(const Item::SharedActor &actor, bool reassign = false);
+	void removeVehicle(const Item::SharedVehicle &vehicle, bool reassign = false);
 	void removeArea(const Item::SharedArea &area, bool reassign = false);
 	void removeCheckpoint(const Item::SharedCheckpoint &checkpoint, bool reassign = false);
 	void removeMapIcon(const Item::SharedMapIcon &mapIcon, bool reassign = false);
@@ -91,7 +93,7 @@ private:
 
 	inline void eraseCellIfEmpty(const SharedCell &passedCell)
 	{
-		if (passedCell->areas.empty() && passedCell->checkpoints.empty() && passedCell->mapIcons.empty() && passedCell->objects.empty() && passedCell->pickups.empty() && passedCell->raceCheckpoints.empty() && passedCell->textLabels.empty() && passedCell->actors.empty())
+		if (passedCell->areas.empty() && passedCell->checkpoints.empty() && passedCell->mapIcons.empty() && passedCell->objects.empty() && passedCell->pickups.empty() && passedCell->raceCheckpoints.empty() && passedCell->textLabels.empty() && passedCell->actors.empty() && passedCell->vehicles.empty())
 		{
 			cells.erase(passedCell->cellId);
 		}

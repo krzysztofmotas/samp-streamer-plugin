@@ -29,6 +29,7 @@
 #include <Eigen/Core>
 
 #include <algorithm>
+#include <array>
 #include <bitset>
 #include <cmath>
 #include <functional>
@@ -58,6 +59,7 @@
 #include <Eigen/Core>
 
 #include <algorithm>
+#include <array>
 #include <bitset>
 #include <cmath>
 #include <functional>

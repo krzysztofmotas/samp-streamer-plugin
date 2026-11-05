@@ -399,6 +399,57 @@ namespace Item
 
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 	};
+
+	struct Vehicle
+	{
+		Vehicle();
+
+		AMX *amx;
+		float angle;
+		int cab;
+		SharedCell cell;
+		int color1;
+		int color2;
+		float comparableStreamDistance;
+		std::array<int, MAX_VEHICLE_COMPONENT_SLOT> components;
+		int damageDoors;
+		int damageLights;
+		int damagePanels;
+		int damageTyres;
+		bool dead;
+		std::chrono::steady_clock::time_point forcedUntil;
+		float health;
+		int interior;
+		bool inverseAreaChecking;
+		int modelId;
+		float originalComparableStreamDistance;
+		int paintjob;
+		VehicleParams params;
+		std::string plate;
+		Eigen::Vector3f position;
+		Eigen::Vector3f positionOffset;
+		int priority;
+		int references;
+		int respawnDelay;
+		bool siren;
+		float spawnAngle;
+		Eigen::Vector3f spawnPosition;
+		bool streamCallbacks;
+		float streamDistance;
+		int trailer;
+		int vehicleId;
+
+		std::unordered_set<int> areas;
+		std::vector<int> extras;
+		std::unordered_map<int, std::vector<int>> extraExtras;
+		std::unordered_set<int> interiors;
+		std::bitset<PLAYER_POOL_SIZE> players;
+		std::unordered_set<int> worlds;
+
+		static Identifier identifier;
+
+		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+	};
 }
 
 #endif

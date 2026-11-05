@@ -291,3 +291,5 @@ __pycache__/
 *.amx
 *.i
 .vscode/
+# Local open.mp test server
+test-server/

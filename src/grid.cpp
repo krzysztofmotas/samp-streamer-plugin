@@ -42,6 +42,21 @@ void Grid::addActor(const Item::SharedActor &actor)
 	}
 }
 
+void Grid::addVehicle(const Item::SharedVehicle &vehicle)
+{
+	if (vehicle->comparableStreamDistance > cellDistance || vehicle->comparableStreamDistance < STREAMER_STATIC_DISTANCE_CUTOFF)
+	{
+		globalCell->vehicles.insert(std::make_pair(vehicle->vehicleId, vehicle));
+		vehicle->cell.reset();
+	}
+	else
+	{
+		CellId cellId = getCellId(Eigen::Vector2f(vehicle->position[0], vehicle->position[1]));
+		cells[cellId]->vehicles.insert(std::make_pair(vehicle->vehicleId, vehicle));
+		vehicle->cell = cells[cellId];
+	}
+}
+
 void Grid::addArea(const Item::SharedArea &area)
 {
 	if (area->comparableSize > cellDistance)
@@ -218,6 +233,10 @@ void Grid::rebuildGrid()
 	{
 		addArea(a->second);
 	}
+	for (std::unordered_map<int, Item::SharedVehicle>::iterator v = core->getData()->vehicles.begin(); v != core->getData()->vehicles.end(); ++v)
+	{
+		addVehicle(v->second);
+	}
 	for (std::unordered_map<int, Item::SharedCheckpoint>::iterator c = core->getData()->checkpoints.begin(); c != core->getData()->checkpoints.end(); ++c)
 	{
 		addCheckpoint(c->second);
@@ -275,6 +294,41 @@ void Grid::removeActor(const Item::SharedActor &actor, bool reassign)
 		if (reassign)
 		{
 			addActor(actor);
+		}
+	}
+}
+
+void Grid::removeVehicle(const Item::SharedVehicle &vehicle, bool reassign)
+{
+	bool found = false;
+	if (vehicle->cell)
+	{
+		std::unordered_map<CellId, SharedCell, pair_hash>::iterator c = cells.find(vehicle->cell->cellId);
+		if (c != cells.end())
+		{
+			std::unordered_map<int, Item::SharedVehicle>::iterator v = c->second->vehicles.find(vehicle->vehicleId);
+			if (v != c->second->vehicles.end())
+			{
+				c->second->vehicles.erase(v);
+				eraseCellIfEmpty(c->second);
+				found = true;
+			}
+		}
+	}
+	else
+	{
+		std::unordered_map<int, Item::SharedVehicle>::iterator v = globalCell->vehicles.find(vehicle->vehicleId);
+		if (v != globalCell->vehicles.end())
+		{
+			globalCell->vehicles.erase(v);
+			found = true;
+		}
+	}
+	if (found)
+	{
+		if (reassign)
+		{
+			addVehicle(vehicle);
 		}
 	}
 }

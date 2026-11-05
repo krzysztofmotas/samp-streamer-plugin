@@ -18,6 +18,7 @@
 
 #include "streamer.h"
 #include "core.h"
+#include "vehicle-state.h"
 
 Streamer::Streamer()
 {
@@ -111,6 +112,14 @@ void Streamer::startAutomaticUpdate()
 							}
 							break;
 						}
+						case STREAMER_TYPE_VEHICLE:
+						{
+							if (!core->getData()->vehicles.empty() && p->second.enabledItems[STREAMER_TYPE_VEHICLE])
+							{
+								discoverVehicles(p->second, cells);
+							}
+							break;
+						}
 					}
 				}
 			}
@@ -123,6 +132,12 @@ void Streamer::startAutomaticUpdate()
 					{
 						Utility::processPendingDestroyedActors();
 						streamActors();
+						break;
+					}
+					case STREAMER_TYPE_VEHICLE:
+					{
+						Utility::processPendingDestroyedVehicles();
+						streamVehicles();
 						break;
 					}
 				}
@@ -488,6 +503,14 @@ void Streamer::executeCallbacks()
 					}
 					break;
 				}
+				case STREAMER_TYPE_VEHICLE:
+				{
+					if (core->getData()->vehicles.find(std::get<1>(*c)) == core->getData()->vehicles.end())
+					{
+						continue;
+					}
+					break;
+				}
 			}
 			for (std::set<AMX*>::iterator i = core->getData()->interfaces.begin(); i != core->getData()->interfaces.end(); ++i)
 			{
@@ -553,6 +576,14 @@ void Streamer::executeCallbacks()
 				case STREAMER_TYPE_3D_TEXT_LABEL:
 				{
 					if (core->getData()->textLabels.find(std::get<1>(*c)) == core->getData()->textLabels.end())
+					{
+						continue;
+					}
+					break;
+				}
+				case STREAMER_TYPE_VEHICLE:
+				{
+					if (core->getData()->vehicles.find(std::get<1>(*c)) == core->getData()->vehicles.end())
 					{
 						continue;
 					}
@@ -649,6 +680,125 @@ void Streamer::streamActors()
 			ompgdk::ApplyActorAnimation(internalId, s->second.second->anim->lib.c_str(), s->second.second->anim->name.c_str(), s->second.second->anim->delta, s->second.second->anim->loop, s->second.second->anim->lockx, s->second.second->anim->locky, s->second.second->anim->freeze, s->second.second->anim->time);
 		}
 		core->getData()->internalActors.insert(std::make_pair(std::make_pair(s->second.second->actorId, s->second.first), internalId));
+	}
+}
+
+void Streamer::discoverVehicles(Player &player, const std::vector<SharedCell> &cells)
+{
+	if (!ompgdk::IsPlayerNPC(player.playerId))
+	{
+		for (std::vector<SharedCell>::const_iterator c = cells.begin(); c != cells.end(); ++c)
+		{
+			for (std::unordered_map<int, Item::SharedVehicle>::const_iterator v = (*c)->vehicles.begin(); v != (*c)->vehicles.end(); ++v)
+			{
+				if (player.worldId != VehicleState::getWorld(v->second))
+				{
+					continue;
+				}
+				if (doesPlayerSatisfyConditions(v->second->players, player.playerId, v->second->interiors, player.interiorId, v->second->worlds, player.worldId, v->second->areas, player.internalAreas, v->second->inverseAreaChecking))
+				{
+					float distance = static_cast<float>(boost::geometry::comparable_distance(player.position, Eigen::Vector3f(v->second->position + v->second->positionOffset)));
+					if (v->second->comparableStreamDistance < STREAMER_STATIC_DISTANCE_CUTOFF || distance < (v->second->comparableStreamDistance * player.radiusMultipliers[STREAMER_TYPE_VEHICLE]))
+					{
+						std::unordered_map<int, std::pair<float, Item::SharedVehicle> >::iterator d = core->getData()->discoveredVehicles.find(v->first);
+						if (d == core->getData()->discoveredVehicles.end())
+						{
+							core->getData()->discoveredVehicles.insert(std::make_pair(v->first, std::make_pair(distance, v->second)));
+						}
+						else if (distance < d->second.first)
+						{
+							d->second.first = distance;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void Streamer::streamVehicles()
+{
+	std::unordered_map<int, std::pair<float, Item::SharedVehicle> > &discovered = core->getData()->discoveredVehicles;
+	VehicleState::syncPositions();
+	// A cab and its trailer are streamed as one unit.
+	std::vector<std::pair<int, std::pair<float, Item::SharedVehicle> > > linked;
+	for (std::unordered_map<int, std::pair<float, Item::SharedVehicle> >::iterator d = discovered.begin(); d != discovered.end(); ++d)
+	{
+		int links[2] = { d->second.second->trailer, d->second.second->cab };
+		for (int l = 0; l < 2; ++l)
+		{
+			std::unordered_map<int, Item::SharedVehicle>::iterator o = core->getData()->vehicles.find(links[l]);
+			if (o != core->getData()->vehicles.end() && discovered.find(o->first) == discovered.end())
+			{
+				linked.push_back(std::make_pair(o->first, std::make_pair(d->second.first, o->second)));
+			}
+		}
+	}
+	discovered.insert(linked.begin(), linked.end());
+	std::vector<Item::SharedVehicle> streamOut;
+	for (std::unordered_map<int, int>::iterator i = core->getData()->internalVehicles.begin(); i != core->getData()->internalVehicles.end(); ++i)
+	{
+		std::unordered_map<int, std::pair<float, Item::SharedVehicle> >::iterator d = discovered.find(i->first);
+		if (d != discovered.end())
+		{
+			discovered.erase(d);
+			continue;
+		}
+		std::unordered_map<int, Item::SharedVehicle>::iterator v = core->getData()->vehicles.find(i->first);
+		if (v == core->getData()->vehicles.end())
+		{
+			continue;
+		}
+		IVehicle *internal = VehicleState::getInternal(v->second);
+		if (internal && VehicleState::isPinned(v->second, *internal))
+		{
+			continue;
+		}
+		streamOut.push_back(v->second);
+	}
+	for (std::vector<Item::SharedVehicle>::iterator v = streamOut.begin(); v != streamOut.end(); ++v)
+	{
+		VehicleState::destroy(*v);
+		if ((*v)->dead)
+		{
+			// Nobody saw it burn out, so it comes back at its spawn point next time.
+			VehicleState::resetToSpawn(*v);
+		}
+		if ((*v)->streamCallbacks)
+		{
+			streamOutCallbacks.push_back(std::make_tuple(STREAMER_TYPE_VEHICLE, (*v)->vehicleId, INVALID_PLAYER_ID));
+		}
+	}
+	std::vector<std::pair<std::tuple<int, float>, Item::SharedVehicle> > sortedVehicles;
+	for (std::unordered_map<int, std::pair<float, Item::SharedVehicle> >::iterator d = discovered.begin(); d != discovered.end(); ++d)
+	{
+		sortedVehicles.push_back(std::make_pair(std::make_tuple(d->second.second->priority, d->second.first), d->second.second));
+	}
+	discovered.clear();
+	std::sort(sortedVehicles.begin(), sortedVehicles.end(), [](const std::pair<std::tuple<int, float>, Item::SharedVehicle> &a, const std::pair<std::tuple<int, float>, Item::SharedVehicle> &b)
+	{
+		return Item::LeftTupleCompare<int>()(a.first, b.first);
+	});
+	std::vector<Item::SharedVehicle> streamedIn;
+	for (std::vector<std::pair<std::tuple<int, float>, Item::SharedVehicle> >::iterator s = sortedVehicles.begin(); s != sortedVehicles.end(); ++s)
+	{
+		if (core->getData()->internalVehicles.size() >= core->getData()->getGlobalMaxVisibleItems(STREAMER_TYPE_VEHICLE))
+		{
+			break;
+		}
+		if (VehicleState::create(s->second) == INVALID_VEHICLE_ID)
+		{
+			break;
+		}
+		streamedIn.push_back(s->second);
+		if (s->second->streamCallbacks)
+		{
+			streamInCallbacks.push_back(std::make_tuple(STREAMER_TYPE_VEHICLE, s->second->vehicleId, INVALID_PLAYER_ID));
+		}
+	}
+	for (std::vector<Item::SharedVehicle>::iterator v = streamedIn.begin(); v != streamedIn.end(); ++v)
+	{
+		VehicleState::applyTrailerLinks(*v);
 	}
 }
 

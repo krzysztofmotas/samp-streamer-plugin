@@ -30,6 +30,7 @@ namespace Utility
 	void recreatePlayerPickups(const Item::SharedPickup &pickup);
 	std::unordered_map<int, Item::SharedRaceCheckpoint>::iterator destroyRaceCheckpoint(std::unordered_map<int, Item::SharedRaceCheckpoint>::iterator r);
 	std::unordered_map<int, Item::SharedTextLabel>::iterator destroyTextLabel(std::unordered_map<int, Item::SharedTextLabel>::iterator t);
+	std::unordered_map<int, Item::SharedVehicle>::iterator destroyVehicle(std::unordered_map<int, Item::SharedVehicle>::iterator v);
 
 	const std::string &getTextLabelTextForLanguage(const Item::SharedTextLabel &textLabel, int language);
 	const std::string &getMaterialTextForLanguage(const std::shared_ptr<Item::Object::Material::Text> &materialText, int language);
@@ -52,6 +53,7 @@ namespace Utility
 	bool setRadiusMultiplier(int type, float value, int playerid);
 
 	void processPendingDestroyedActors();
+	void processPendingDestroyedVehicles();
 
 	template<typename T>
 	inline bool almostEquals(T a, T b)

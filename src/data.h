@@ -42,10 +42,15 @@ public:
 	std::set<AMX*> amxUnloadDestroyItems;
 
 	std::vector<int> destroyedActors;
+	std::vector<int> destroyedVehicles;
 
 	std::unordered_map<std::pair<int, int>, Item::SharedActor, pair_hash> discoveredActors;
 
 	std::unordered_map<std::pair<int, int>, int, pair_hash> internalActors;
+
+	std::unordered_map<int, std::pair<float, Item::SharedVehicle> > discoveredVehicles;
+	std::unordered_map<int, int> internalVehicles;
+	std::unordered_map<int, int> internalVehiclesReverse;
 
 	std::unordered_map<int, Item::SharedActor> actors;
 	std::unordered_map<int, Item::SharedArea> areas;
@@ -55,6 +60,7 @@ public:
 	std::unordered_map<int, Item::SharedPickup> pickups;
 	std::unordered_map<int, Item::SharedRaceCheckpoint> raceCheckpoints;
 	std::unordered_map<int, Item::SharedTextLabel> textLabels;
+	std::unordered_map<int, Item::SharedVehicle> vehicles;
 
 	std::unordered_map<int, Player> players;
 

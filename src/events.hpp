@@ -21,6 +21,8 @@
 #include "Server/Components/Checkpoints/checkpoints.hpp"
 #include "Server/Components/Pickups/pickups.hpp"
 #include "Server/Components/Objects/objects.hpp"
+#include "Server/Components/Vehicles/vehicles.hpp"
+#include "vehicle-state.h"
 
 class PlayerEvents : 
 	public PlayerConnectEventHandler, public PlayerSpawnEventHandler, public PlayerShotEventHandler,
@@ -170,6 +172,61 @@ class ActorEvents : public ActorEventHandler, public Singleton<ActorEvents>
 					}
 				}
 				break;
+			}
+		}
+	}
+};
+
+class VehicleEvents : public VehicleEventHandler, public Singleton<VehicleEvents>
+{
+	void onVehicleDeath(IVehicle& vehicle, IPlayer& player) override
+	{
+		std::unordered_map<int, Item::SharedVehicle>::iterator v = core->getData()->vehicles.find(VehicleState::getStreamerId(vehicle.getID()));
+		if (v != core->getData()->vehicles.end())
+		{
+			v->second->dead = true;
+		}
+	}
+
+	void onVehicleSpawn(IVehicle& vehicle) override
+	{
+		std::unordered_map<int, Item::SharedVehicle>::iterator v = core->getData()->vehicles.find(VehicleState::getStreamerId(vehicle.getID()));
+		if (v != core->getData()->vehicles.end())
+		{
+			// open.mp has already reset the real vehicle, so take its state as the new truth.
+			VehicleState::snapshot(v->second, vehicle);
+			v->second->dead = false;
+			vehicle.setVirtualWorld(VehicleState::getWorld(v->second));
+			core->getGrid()->removeVehicle(v->second, true);
+		}
+	}
+
+	void onVehicleStreamIn(IVehicle& vehicle, IPlayer& forPlayer) override
+	{
+		executeStreamCallback("OnDynamicVehicleStreamIn", vehicle, forPlayer);
+	}
+
+	void onVehicleStreamOut(IVehicle& vehicle, IPlayer& forPlayer) override
+	{
+		executeStreamCallback("OnDynamicVehicleStreamOut", vehicle, forPlayer);
+	}
+
+	void executeStreamCallback(const char *name, IVehicle& vehicle, IPlayer& forPlayer)
+	{
+		int dynVehicleId = VehicleState::getStreamerId(vehicle.getID());
+		if (dynVehicleId == INVALID_STREAMER_ID)
+		{
+			return;
+		}
+		int forplayerid = forPlayer.getID();
+		for (std::set<AMX*>::iterator a = core->getData()->interfaces.begin(); a != core->getData()->interfaces.end(); ++a)
+		{
+			int amxIndex = 0;
+			if (!amx_FindPublic(*a, name, &amxIndex))
+			{
+				amx_Push(*a, static_cast<cell>(forplayerid));
+				amx_Push(*a, static_cast<cell>(dynVehicleId));
+				amx_Exec(*a, NULL, amxIndex);
 			}
 		}
 	}
@@ -424,6 +481,7 @@ public:
 	{
 		players = playerPool;
 		actors = components->queryComponent<IActorsComponent>();
+		vehicles = components->queryComponent<IVehiclesComponent>();
 		objects = components->queryComponent<IObjectsComponent>();
 		pickups = components->queryComponent<IPickupsComponent>();
 		checkpoints = components->queryComponent<ICheckpointsComponent>();
@@ -442,6 +500,11 @@ public:
 		if (actors)
 		{
 			actors->getEventDispatcher().removeEventHandler(ActorEvents::Get());
+		}
+
+		if (vehicles)
+		{
+			vehicles->getEventDispatcher().removeEventHandler(VehicleEvents::Get());
 		}
 
 		if (objects)
@@ -479,6 +542,11 @@ public:
 			actors->getEventDispatcher().addEventHandler(ActorEvents::Get());
 		}
 
+		if (vehicles)
+		{
+			vehicles->getEventDispatcher().addEventHandler(VehicleEvents::Get());
+		}
+
 		if (objects)
 		{
 			objects->getEventDispatcher().addEventHandler(ObjectEvents::Get());
@@ -507,4 +575,5 @@ private:
 	ICheckpointsComponent* checkpoints = nullptr;
 	IClassesComponent* classes = nullptr;
 	IActorsComponent* actors = nullptr;
+	IVehiclesComponent* vehicles = nullptr;
 };
