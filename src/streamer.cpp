@@ -151,8 +151,9 @@ void Streamer::startManualUpdate(Player &player, int type)
 	}
 	if (type >= 0 && type < STREAMER_MAX_TYPES)
 	{
+		bool typeEnabled = player.enabledItems[type];
 		player.enabledItems.reset();
-		player.enabledItems.set(type);
+		player.enabledItems.set(type, typeEnabled);
 	}
 	processActiveItems();
 	performPlayerUpdate(player, false);
