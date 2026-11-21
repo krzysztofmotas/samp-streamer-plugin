@@ -198,6 +198,24 @@ cell AMX_NATIVE_CALL Natives::Streamer_QueueObjectDiscovery(AMX *amx, cell *para
 		{
 			core->getChunkStreamer()->discoverObjects(p->second, cells);
 		}
+		// discoverObjects only visits the cells around the queued position, so objects
+		// streamed in elsewhere would stay and keep the client's object slots full.
+		std::unordered_set<int> keptObjects;
+		for (Item::Bimap<Item::SharedObject>::Type::left_const_iterator e = p->second.existingObjects.left.begin(); e != p->second.existingObjects.left.end(); ++e)
+		{
+			keptObjects.insert(std::get<0>(e->second));
+		}
+		for (std::unordered_map<int, int>::const_iterator i = p->second.internalObjects.begin(); i != p->second.internalObjects.end(); ++i)
+		{
+			if (keptObjects.find(i->first) == keptObjects.end())
+			{
+				p->second.removedObjects.insert(i->first);
+			}
+		}
+		if (!p->second.removedObjects.empty())
+		{
+			p->second.processingChunks.set(STREAMER_TYPE_OBJECT);
+		}
 		p->second.position = savedPosition;
 		p->second.worldId = savedWorldId;
 		p->second.interiorId = savedInteriorId;
