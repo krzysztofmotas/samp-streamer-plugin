@@ -38,6 +38,9 @@ namespace Utility
 	// open.mp-gdk only stubs AttachPlayerObjectToPlayer, so the attachment goes through the SDK.
 	bool attachPlayerObjectToPlayer(int playerid, int objectid, int attachedPlayerId, float offsetX, float offsetY, float offsetZ, float rotX, float rotY, float rotZ);
 
+	// open.mp-gdk's AttachPlayerObjectToObject always syncs the rotation, so syncRotation goes through the SDK.
+	bool attachPlayerObjectToObject(int playerid, int objectid, int attachedToId, float offsetX, float offsetY, float offsetZ, float rotX, float rotY, float rotZ, bool syncRotation);
+
 	// Every read of a player's streaming position from open.mp goes through here. Returns false and keeps
 	// the previous position when the client reports the SA-MP spectator fallback camera position.
 	bool readPlayerStreamPosition(Player &player);

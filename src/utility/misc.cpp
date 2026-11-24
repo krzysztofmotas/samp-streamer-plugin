@@ -275,6 +275,14 @@ bool Utility::attachPlayerObjectToPlayer(int playerid, int objectid, int attache
 	return true;
 }
 
+bool Utility::attachPlayerObjectToObject(int playerid, int objectid, int attachedToId, float offsetX, float offsetY, float offsetZ, float rotX, float rotY, float rotZ, bool syncRotation)
+{
+	GET_PLAYER_OBJECT_CHECKED(object, playerid, objectid, false);
+	GET_PLAYER_OBJECT_CHECKED(attachedTo, playerid, attachedToId, false);
+	object->attachToObject(*attachedTo, { offsetX, offsetY, offsetZ }, { rotX, rotY, rotZ }, syncRotation);
+	return true;
+}
+
 bool Utility::readPlayerStreamPosition(Player &player)
 {
 	Eigen::Vector3f position = Eigen::Vector3f::Zero();

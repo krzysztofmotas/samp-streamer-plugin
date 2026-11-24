@@ -1005,7 +1005,7 @@ int Manipulation::setFloatData(AMX *amx, cell *params)
 									std::unordered_map<int, int>::iterator j = p->second.internalObjects.find(o->second->attach->object);
 									if (j != p->second.internalObjects.end())
 									{
-										ompgdk::AttachPlayerObjectToObject(p->first, i->second, j->second, o->second->attach->positionOffset[0], o->second->attach->positionOffset[1], o->second->attach->positionOffset[2], o->second->attach->rotation[0], o->second->attach->rotation[1], o->second->attach->rotation[2]);
+										Utility::attachPlayerObjectToObject(p->first, i->second, j->second, o->second->attach->positionOffset[0], o->second->attach->positionOffset[1], o->second->attach->positionOffset[2], o->second->attach->rotation[0], o->second->attach->rotation[1], o->second->attach->rotation[2], o->second->attach->syncRotation);
 									}
 								}
 								else if (o->second->attach->player != INVALID_PLAYER_ID)
