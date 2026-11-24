@@ -430,15 +430,19 @@ public:
 		classes = components->queryComponent<IClassesComponent>();
 	}
 
+	// Components are freed one by one, so a component freed before this one must not be touched in the destructor
+	void onComponentFree(IComponent* component)
+	{
+		if (component == static_cast<IComponent*>(actors)) actors = nullptr;
+		if (component == static_cast<IComponent*>(objects)) objects = nullptr;
+		if (component == static_cast<IComponent*>(pickups)) pickups = nullptr;
+		if (component == static_cast<IComponent*>(classes)) classes = nullptr;
+		if (component == static_cast<IComponent*>(checkpoints)) checkpoints = nullptr;
+	}
+
+	// The player pool is already freed when the components are (Core::~Core), so its dispatchers are not touched here
 	~EventHandler()
 	{
-		if (players)
-		{
-			players->getPlayerConnectDispatcher().removeEventHandler(PlayerEvents::Get());
-			players->getPlayerSpawnDispatcher().removeEventHandler(PlayerEvents::Get());
-			players->getPlayerShotDispatcher().removeEventHandler(PlayerEvents::Get());
-		}
-
 		if (actors)
 		{
 			actors->getEventDispatcher().removeEventHandler(ActorEvents::Get());

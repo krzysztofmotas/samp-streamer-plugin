@@ -365,7 +365,8 @@ class OmpStreamerComponent final : public IComponent, public CoreEventHandler, p
 
 	void onFree(IComponent* component) override
 	{
-		if (component == pawnComponent) 
+		streamerEventHandler.onComponentFree(component);
+		if (component == pawnComponent)
 		{
 			pawnComponent = nullptr;
 			pAMXFunctions = nullptr;
