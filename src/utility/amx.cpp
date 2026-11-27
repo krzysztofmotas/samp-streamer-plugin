@@ -186,6 +186,19 @@ void Utility::destroyAllItemsInInterface(AMX *amx)
 			++b;
 		}
 	}
+	std::unordered_map<int, Item::SharedVehicle>::iterator v = core->getData()->vehicles.begin();
+	while (v != core->getData()->vehicles.end())
+	{
+		if (v->second->amx == amx)
+		{
+			v = destroyVehicle(v);
+		}
+		else
+		{
+			++v;
+		}
+	}
+	processPendingDestroyedVehicles();
 }
 
 void Utility::executeFinalAreaCallbacks(int areaid)

@@ -21,6 +21,7 @@ list(APPEND PLUGIN_SOURCES
 	object-unreliable-updates.cpp
 	player.cpp
 	streamer.cpp
+	vehicle-state.cpp
 	omp-nethack.cpp
 )
 

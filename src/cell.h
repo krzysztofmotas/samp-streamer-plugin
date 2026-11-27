@@ -36,6 +36,7 @@ public:
 	std::unordered_map<int, Item::SharedPickup> pickups;
 	std::unordered_map<int, Item::SharedRaceCheckpoint> raceCheckpoints;
 	std::unordered_map<int, Item::SharedTextLabel> textLabels;
+	std::unordered_map<int, Item::SharedVehicle> vehicles;
 };
 
 #endif

@@ -25,7 +25,7 @@
 
 #define INVALID_STREAMER_ID (0)
 
-#define STREAMER_MAX_TYPES (8)
+#define STREAMER_MAX_TYPES (9)
 
 #define STREAMER_TYPE_OBJECT (0)
 #define STREAMER_TYPE_PICKUP (1)
@@ -35,6 +35,7 @@
 #define STREAMER_TYPE_3D_TEXT_LABEL (5)
 #define STREAMER_TYPE_AREA (6)
 #define STREAMER_TYPE_ACTOR (7)
+#define STREAMER_TYPE_VEHICLE (8)
 
 #define STREAMER_MAX_AREA_TYPES (6)
 
@@ -78,6 +79,7 @@ namespace Item
 	struct Pickup;
 	struct RaceCheckpoint;
 	struct TextLabel;
+	struct Vehicle;
 
 	typedef std::shared_ptr<Actor> SharedActor;
 	typedef std::shared_ptr<Area> SharedArea;
@@ -87,6 +89,7 @@ namespace Item
 	typedef std::shared_ptr<Pickup> SharedPickup;
 	typedef std::shared_ptr<RaceCheckpoint> SharedRaceCheckpoint;
 	typedef std::shared_ptr<TextLabel> SharedTextLabel;
+	typedef std::shared_ptr<Vehicle> SharedVehicle;
 
 	template<typename T>
 	struct Hash

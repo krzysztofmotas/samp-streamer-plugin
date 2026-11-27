@@ -19,6 +19,7 @@
 #include "array.h"
 #include "../core.h"
 #include "../utility.h"
+#include "../vehicle-state.h"
 
 using namespace Manipulation;
 
@@ -77,6 +78,11 @@ int Manipulation::getArrayData(AMX *amx, cell *params)
 		case STREAMER_TYPE_ACTOR:
 		{
 			result = getArrayDataForItem(core->getData()->actors, amx, static_cast<int>(params[2]), static_cast<int>(params[3]), params[4], params[5], error);
+			break;
+		}
+		case STREAMER_TYPE_VEHICLE:
+		{
+			result = getArrayDataForItem(core->getData()->vehicles, amx, static_cast<int>(params[2]), static_cast<int>(params[3]), params[4], params[5], error);
 			break;
 		}
 	}
@@ -178,6 +184,27 @@ int Manipulation::setArrayData(AMX *amx, cell *params)
 			}
 			break;
 		}
+		case STREAMER_TYPE_VEHICLE:
+		{
+			result = setArrayDataForItem(core->getData()->vehicles, amx, static_cast<int>(params[2]), static_cast<int>(params[3]), params[4], params[5], error);
+			if (static_cast<int>(params[3]) == WorldId)
+			{
+				std::unordered_map<int, Item::SharedVehicle>::iterator a = core->getData()->vehicles.find(static_cast<int>(params[2]));
+				if (a != core->getData()->vehicles.end())
+				{
+					if (a->second->worlds.empty())
+					{
+						a->second->worlds.insert(0);
+					}
+					IVehicle *internal = VehicleState::getInternal(a->second);
+					if (internal)
+					{
+						internal->setVirtualWorld(VehicleState::getWorld(a->second));
+					}
+				}
+			}
+			break;
+		}
 		default:
 		{
 			error = InvalidType;
@@ -264,6 +291,11 @@ int Manipulation::isInArrayData(AMX *amx, cell *params)
 		case STREAMER_TYPE_ACTOR:
 		{
 			result = isInArrayDataForItem(core->getData()->actors, static_cast<int>(params[2]), static_cast<int>(params[3]), static_cast<int>(params[4]), error);
+			break;
+		}
+		case STREAMER_TYPE_VEHICLE:
+		{
+			result = isInArrayDataForItem(core->getData()->vehicles, static_cast<int>(params[2]), static_cast<int>(params[3]), static_cast<int>(params[4]), error);
 			break;
 		}
 		default:
@@ -354,6 +386,11 @@ int Manipulation::appendArrayData(AMX *amx, cell *params)
 			result = appendArrayDataForItem(core->getData()->actors, static_cast<int>(params[2]), static_cast<int>(params[3]), static_cast<int>(params[4]), error);
 			break;
 		}
+		case STREAMER_TYPE_VEHICLE:
+		{
+			result = appendArrayDataForItem(core->getData()->vehicles, static_cast<int>(params[2]), static_cast<int>(params[3]), static_cast<int>(params[4]), error);
+			break;
+		}
 		default:
 		{
 			error = InvalidType;
@@ -442,6 +479,11 @@ int Manipulation::removeArrayData(AMX *amx, cell *params)
 			result = removeArrayDataForItem(core->getData()->actors, static_cast<int>(params[2]), static_cast<int>(params[3]), static_cast<int>(params[4]), error);
 			break;
 		}
+		case STREAMER_TYPE_VEHICLE:
+		{
+			result = removeArrayDataForItem(core->getData()->vehicles, static_cast<int>(params[2]), static_cast<int>(params[3]), static_cast<int>(params[4]), error);
+			break;
+		}
 		default:
 		{
 			error = InvalidType;
@@ -528,6 +570,11 @@ int Manipulation::getArrayDataLength(AMX *amx, cell *params)
 		case STREAMER_TYPE_ACTOR:
 		{
 			result = getArrayDataLengthForItem(core->getData()->actors, static_cast<int>(params[2]), static_cast<int>(params[3]), error);
+			break;
+		}
+		case STREAMER_TYPE_VEHICLE:
+		{
+			result = getArrayDataLengthForItem(core->getData()->vehicles, static_cast<int>(params[2]), static_cast<int>(params[3]), error);
 			break;
 		}
 		default:

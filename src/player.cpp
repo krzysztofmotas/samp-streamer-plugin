@@ -54,6 +54,7 @@ Player::Player(int id)
 	radiusMultipliers[STREAMER_TYPE_3D_TEXT_LABEL] = core->getData()->getGlobalRadiusMultiplier(STREAMER_TYPE_3D_TEXT_LABEL);
 	radiusMultipliers[STREAMER_TYPE_AREA] = core->getData()->getGlobalRadiusMultiplier(STREAMER_TYPE_AREA);
 	radiusMultipliers[STREAMER_TYPE_ACTOR] = core->getData()->getGlobalRadiusMultiplier(STREAMER_TYPE_ACTOR);
+	radiusMultipliers[STREAMER_TYPE_VEHICLE] = core->getData()->getGlobalRadiusMultiplier(STREAMER_TYPE_VEHICLE);
 	requestingClass = false;
 	tickCount = 0;
 	tickRate = 50;
